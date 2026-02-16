@@ -152,13 +152,13 @@ async fn run_tui_loop(
                             KeyCode::Char('q') | KeyCode::Esc => return Ok(()),
                             KeyCode::Up | KeyCode::Char('k') => {
                                 let i = group_state.selected().unwrap_or(0);
-                                group_state.select(Some(i.saturating_sub(1)));
+                                let next = if i == 0 { groups.len().saturating_sub(1) } else { i - 1 };
+                                group_state.select(Some(next));
                             }
                             KeyCode::Down | KeyCode::Char('j') => {
                                 let i = group_state.selected().unwrap_or(0);
-                                if i + 1 < groups.len() {
-                                    group_state.select(Some(i + 1));
-                                }
+                                let next = if i + 1 >= groups.len() { 0 } else { i + 1 };
+                                group_state.select(Some(next));
                             }
                             KeyCode::Enter => {
                                 if let Some(idx) = group_state.selected() {
@@ -185,13 +185,13 @@ async fn run_tui_loop(
                             }
                             KeyCode::Up | KeyCode::Char('k') => {
                                 let i = sub_state.selected().unwrap_or(0);
-                                sub_state.select(Some(i.saturating_sub(1)));
+                                let next = if i == 0 { providers.len().saturating_sub(1) } else { i - 1 };
+                                sub_state.select(Some(next));
                             }
                             KeyCode::Down | KeyCode::Char('j') => {
                                 let i = sub_state.selected().unwrap_or(0);
-                                if i + 1 < providers.len() {
-                                    sub_state.select(Some(i + 1));
-                                }
+                                let next = if i + 1 >= providers.len() { 0 } else { i + 1 };
+                                sub_state.select(Some(next));
                             }
                             KeyCode::Enter => {
                                 if let Some(idx) = sub_state.selected() {
@@ -253,13 +253,13 @@ async fn run_tui_loop(
                             }
                             KeyCode::Up | KeyCode::Char('k') => {
                                 let i = state.list_state.selected().unwrap_or(0);
-                                state.list_state.select(Some(i.saturating_sub(1)));
+                                let next = if i == 0 { state.models.len().saturating_sub(1) } else { i - 1 };
+                                state.list_state.select(Some(next));
                             }
                             KeyCode::Down | KeyCode::Char('j') => {
                                 let i = state.list_state.selected().unwrap_or(0);
-                                if i + 1 < state.models.len() {
-                                    state.list_state.select(Some(i + 1));
-                                }
+                                let next = if i + 1 >= state.models.len() { 0 } else { i + 1 };
+                                state.list_state.select(Some(next));
                             }
                             KeyCode::Char(' ') => {
                                 if let Some(idx) = state.list_state.selected() {
@@ -438,7 +438,9 @@ fn draw(
                     Span::raw(format!("{} - {}", label, providers[0].hint)),
                 ]))
             }).collect();
-            let list = List::new(items).block(Block::default().title(" Providers (Enter select, q quit) ").borders(Borders::ALL)).highlight_style(Style::default().add_modifier(Modifier::REVERSED));
+            let list = List::new(items)
+                .block(Block::default().title(" Providers (↑↓/jk navigate, Enter select, q quit) ").borders(Borders::ALL))
+                .highlight_style(Style::default().add_modifier(Modifier::REVERSED));
             f.render_stateful_widget(list, area, group_state);
         }
         Screen::SubProviders(group_idx) => {
@@ -452,7 +454,9 @@ fn draw(
                     Span::raw(format!("{} - {}", p.label, p.hint)),
                 ]))
             }).collect();
-            let list = List::new(items).block(Block::default().title(format!(" {} (Esc back) ", group_label)).borders(Borders::ALL)).highlight_style(Style::default().add_modifier(Modifier::REVERSED));
+            let list = List::new(items)
+                .block(Block::default().title(format!(" {} (Esc back, ↑↓/jk navigate) ", group_label)).borders(Borders::ALL))
+                .highlight_style(Style::default().add_modifier(Modifier::REVERSED));
             f.render_stateful_widget(list, area, sub_state);
         }
         Screen::AuthInput(state) => {
@@ -475,7 +479,6 @@ fn draw(
                 info_content.push(Line::from(url.as_str()));
             }
             
-            // Render URL without a box/border block to allow clean copying
             let info_para = Paragraph::new(info_content)
                 .wrap(Wrap { trim: false })
                 .block(Block::default().borders(Borders::NONE).title(""));
@@ -489,7 +492,9 @@ fn draw(
                 let marker = if *selected { "[x]" } else { "[ ]" };
                 ListItem::new(format!(" {} {}", marker, id))
             }).collect();
-            let list = List::new(items).block(Block::default().title(" Models (Space toggle, a all, Enter confirm) ").borders(Borders::ALL)).highlight_style(Style::default().add_modifier(Modifier::REVERSED));
+            let list = List::new(items)
+                .block(Block::default().title(" Models (Space toggle, a toggle all, Enter confirm, Esc cancel) ").borders(Borders::ALL))
+                .highlight_style(Style::default().add_modifier(Modifier::REVERSED));
             let mut ls = state.list_state.clone();
             f.render_stateful_widget(list, area, &mut ls);
         }
