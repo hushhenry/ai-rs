@@ -30,6 +30,16 @@ use std::io::{self, stdout};
 use std::sync::{Arc, Mutex};
 
 // ---------------------------------------------------------------------------
+// Constants & Colors (Ref: Gemini CLI / Catppuccin)
+// ---------------------------------------------------------------------------
+
+const COLOR_GREEN: Color = Color::Rgb(166, 227, 161);  // #A6E3A1
+const COLOR_BLUE: Color = Color::Rgb(137, 180, 250);   // #89B4FA
+const COLOR_YELLOW: Color = Color::Rgb(249, 226, 175); // #F9E2AF
+const COLOR_CYAN: Color = Color::Rgb(137, 220, 235);   // #89DCEB
+const COLOR_GRAY: Color = Color::Rgb(108, 112, 134);   // #6C7086
+
+// ---------------------------------------------------------------------------
 // TUI states
 // ---------------------------------------------------------------------------
 
@@ -432,14 +442,24 @@ fn draw(
             let items: Vec<ListItem> = groups.iter().map(|(label, providers)| {
                 let has_any_cred = providers.iter().any(|p| config.has_credential(&p.provider_id).unwrap_or(false));
                 let marker = if has_any_cred { "●" } else { "○" };
-                let color = if has_any_cred { Color::Green } else { Color::White };
+                let color = if has_any_cred { COLOR_GREEN } else { Color::White };
                 ListItem::new(Line::from(vec![
                     Span::styled(format!(" {} ", marker), Style::default().fg(color)),
-                    Span::raw(format!("{} - {}", label, providers[0].hint)),
+                    Span::raw(format!("{} - ", label)),
+                    Span::styled(providers[0].hint.as_str(), Style::default().fg(COLOR_GRAY)),
                 ]))
             }).collect();
+            
+            let title = Line::from(vec![
+                Span::raw(" Providers ("),
+                Span::styled("Enter", Style::default().fg(COLOR_YELLOW)),
+                Span::raw(" select, "),
+                Span::styled("q", Style::default().fg(COLOR_YELLOW)),
+                Span::raw(" quit) "),
+            ]);
+            
             let list = List::new(items)
-                .block(Block::default().title(" Providers (↑↓/jk navigate, Enter select, q quit) ").borders(Borders::ALL))
+                .block(Block::default().title(title).borders(Borders::ALL))
                 .highlight_style(Style::default().add_modifier(Modifier::REVERSED));
             f.render_stateful_widget(list, area, group_state);
         }
@@ -448,14 +468,24 @@ fn draw(
             let items: Vec<ListItem> = providers.iter().map(|p| {
                 let has_cred = config.has_credential(&p.provider_id).unwrap_or(false);
                 let marker = if has_cred { "●" } else { "○" };
-                let color = if has_cred { Color::Green } else { Color::White };
+                let color = if has_cred { COLOR_GREEN } else { Color::White };
                 ListItem::new(Line::from(vec![
                     Span::styled(format!(" {} ", marker), Style::default().fg(color)),
-                    Span::raw(format!("{} - {}", p.label, p.hint)),
+                    Span::raw(format!("{} - ", p.label)),
+                    Span::styled(p.hint.as_str(), Style::default().fg(COLOR_GRAY)),
                 ]))
             }).collect();
+            
+            let title = Line::from(vec![
+                Span::raw(format!(" {} (", group_label)),
+                Span::styled("Esc", Style::default().fg(COLOR_YELLOW)),
+                Span::raw(" back, "),
+                Span::styled("↑↓/jk", Style::default().fg(COLOR_YELLOW)),
+                Span::raw(" navigate) "),
+            ]);
+            
             let list = List::new(items)
-                .block(Block::default().title(format!(" {} (Esc back, ↑↓/jk navigate) ", group_label)).borders(Borders::ALL))
+                .block(Block::default().title(title).borders(Borders::ALL))
                 .highlight_style(Style::default().add_modifier(Modifier::REVERSED));
             f.render_stateful_widget(list, area, sub_state);
         }
@@ -469,13 +499,13 @@ fn draw(
             f.render_widget(Paragraph::new(state.label.as_str()).block(Block::default().borders(Borders::ALL)), chunks[0]);
             
             let mut info_content = vec![
-                Line::from(Span::styled("Instructions: ", Style::default().fg(Color::Yellow))),
+                Line::from(Span::styled("Instructions: ", Style::default().fg(COLOR_YELLOW))),
                 Line::from(state.hint.as_str()),
             ];
             
             if let Some(url) = &state.oauth_url {
                 info_content.push(Line::from(""));
-                info_content.push(Line::from(Span::styled("Clean URL (copy below):", Style::default().fg(Color::Cyan))));
+                info_content.push(Line::from(Span::styled("Clean URL (copy below):", Style::default().fg(COLOR_CYAN))));
                 info_content.push(Line::from(url.as_str()));
             }
             
@@ -484,16 +514,39 @@ fn draw(
                 .block(Block::default().borders(Borders::NONE).title(""));
             f.render_widget(info_para, chunks[1]);
             
+            let title = Line::from(vec![
+                Span::raw(" Input ("),
+                Span::styled("Enter", Style::default().fg(COLOR_YELLOW)),
+                Span::raw(" confirm, "),
+                Span::styled("Esc", Style::default().fg(COLOR_YELLOW)),
+                Span::raw(" cancel) "),
+            ]);
+            
             let input_text = state.input.clone();
-            f.render_widget(Paragraph::new(input_text).block(Block::default().borders(Borders::ALL).title(" Input (Paste code and Enter) ")), chunks[2]);
+            f.render_widget(Paragraph::new(input_text).block(Block::default().borders(Borders::ALL).title(title)), chunks[2]);
         }
         Screen::ModelSelect(state) => {
             let items: Vec<ListItem> = state.models.iter().map(|(id, selected)| {
-                let marker = if *selected { "[x]" } else { "[ ]" };
-                ListItem::new(format!(" {} {}", marker, id))
+                let (marker, style) = if *selected { 
+                    ("[x]", Style::default().fg(COLOR_GREEN)) 
+                } else { 
+                    ("[ ]", Style::default().fg(Color::White)) 
+                };
+                ListItem::new(Span::styled(format!(" {} {}", marker, id), style))
             }).collect();
+            
+            let title = Line::from(vec![
+                Span::raw(" Models ("),
+                Span::styled("Space", Style::default().fg(COLOR_YELLOW)),
+                Span::raw(" toggle, "),
+                Span::styled("a", Style::default().fg(COLOR_YELLOW)),
+                Span::raw(" all, "),
+                Span::styled("Enter", Style::default().fg(COLOR_YELLOW)),
+                Span::raw(" confirm) "),
+            ]);
+            
             let list = List::new(items)
-                .block(Block::default().title(" Models (Space toggle, a toggle all, Enter confirm, Esc cancel) ").borders(Borders::ALL))
+                .block(Block::default().title(title).borders(Borders::ALL))
                 .highlight_style(Style::default().add_modifier(Modifier::REVERSED));
             let mut ls = state.list_state.clone();
             f.render_stateful_widget(list, area, &mut ls);
