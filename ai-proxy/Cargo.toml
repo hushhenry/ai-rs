@@ -31,3 +31,4 @@ ratatui = "0.29"
 async-trait = "0.1"
 url = "2.5"
 serde_urlencoded = "0.7"
+rand = { workspace = true }

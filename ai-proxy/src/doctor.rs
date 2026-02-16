@@ -6,6 +6,7 @@ use ai::{
     },
 };
 use futures::StreamExt;
+use rand::seq::IndexedRandom;
 use serde_json::json;
 
 /// Run the doctor check.
@@ -38,21 +39,25 @@ pub async fn run_doctor(model_filter: Option<&str>) -> anyhow::Result<()> {
             }
         }
     } else {
-        // One random model per provider
-        let mut providers_seen = std::collections::HashSet::new();
-        let mut selected = Vec::new();
-
+        // One random model per provider from the enabled list
+        let mut provider_models: std::collections::HashMap<String, Vec<String>> = std::collections::HashMap::new();
         for full_id in &enabled_models {
-            if let Some((provider, model_id)) = ModelMapper::parse_model_id(full_id) {
-                if providers_seen.contains(provider) {
-                    continue;
-                }
+            if let Some((provider, _)) = ModelMapper::parse_model_id(full_id) {
+                provider_models.entry(provider.to_string()).or_default().push(full_id.clone());
+            }
+        }
+
+        let mut rng = rand::rng();
+        let mut selected: Vec<(String, ModelDef)> = Vec::new();
+
+        for (provider, models) in provider_models {
+            if let Some(full_id) = models.choose(&mut rng) {
+                let (_, model_id) = ModelMapper::parse_model_id(full_id).unwrap();
                 if let Some(def) = all_static
                     .iter()
                     .find(|m| m.provider == provider && m.id == model_id)
                 {
-                    providers_seen.insert(provider.to_string());
-                    selected.push((full_id.clone(), def.clone()));
+                    selected.push((full_id.to_string(), def.clone()));
                 }
             }
         }
@@ -78,7 +83,7 @@ pub async fn run_doctor(model_filter: Option<&str>) -> anyhow::Result<()> {
 
     for (full_id, model_def) in &models_to_check {
         let (provider, _) = ModelMapper::parse_model_id(full_id).unwrap();
-        let api_key = config.resolve_api_key(provider)?;
+        let api_key = config.resolve_api_key(provider).await?;
 
         if api_key.is_none() {
             println!("  {} - No credentials", full_id);

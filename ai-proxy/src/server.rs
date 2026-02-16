@@ -79,8 +79,8 @@ impl AppState {
     }
 
     /// Resolve API key for a provider.
-    pub fn resolve_api_key(&self, provider: &str) -> Option<String> {
-        self.config.resolve_api_key(provider).ok().flatten()
+    pub async fn resolve_api_key(&self, provider: &str) -> Option<String> {
+        self.config.resolve_api_key(provider).await.ok().flatten()
     }
 }
 
@@ -307,7 +307,7 @@ async fn chat_completions(
         }
     };
 
-    let api_key = match state.resolve_api_key(provider_name) {
+    let api_key = match state.resolve_api_key(provider_name).await {
         Some(k) => k,
         None => {
             return (
@@ -668,7 +668,7 @@ async fn anthropic_messages(
         }
     };
 
-    let api_key = match state.resolve_api_key(provider_name) {
+    let api_key = match state.resolve_api_key(provider_name).await {
         Some(k) => k,
         None => {
             return (

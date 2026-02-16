@@ -155,9 +155,46 @@ impl ConfigManager {
     }
 
     /// Get the API key for a provider. Checks config, then env vars, then sniffed files.
-    pub fn resolve_api_key(&self, provider_id: &str) -> anyhow::Result<Option<String>> {
+    /// Automatically refreshes OAuth tokens if expired.
+    pub async fn resolve_api_key(&self, provider_id: &str) -> anyhow::Result<Option<String>> {
         // 1. Check config
-        if let Some(cred) = self.get_credential(provider_id)? {
+        if let Some(mut cred) = self.get_credential(provider_id)? {
+            // Handle OAuth refresh if needed
+            if let super::Credential::OAuth(ref mut oauth) = cred {
+                let now = chrono::Utc::now().timestamp_millis();
+                // If expired or expiring in less than 5 minutes
+                if now + 5 * 60 * 1000 >= oauth.expires {
+                    let oauth_provider: Box<dyn crate::oauth::OAuthProvider> = match provider_id {
+                        "anthropic" => Box::new(crate::oauth::anthropic::AnthropicOAuthProvider),
+                        "gemini-cli" => Box::new(crate::oauth::google_gemini_cli::GeminiCliOAuthProvider),
+                        "antigravity" => Box::new(crate::oauth::google_antigravity::AntigravityOAuthProvider),
+                        _ => return Ok(cred.api_key()), // Unknown provider, can't refresh
+                    };
+
+                    let old_creds = crate::oauth::OAuthCredentials {
+                        refresh: oauth.refresh.clone(),
+                        access: oauth.access.clone(),
+                        expires: oauth.expires,
+                        extra: oauth.extra.clone(),
+                    };
+
+                    match oauth_provider.refresh_token(&old_creds).await {
+                        Ok(new_creds) => {
+                            oauth.access = new_creds.access;
+                            oauth.refresh = new_creds.refresh;
+                            oauth.expires = new_creds.expires;
+                            oauth.extra = new_creds.extra;
+                            // Save refreshed token back to config
+                            self.set_credential(provider_id, cred.clone())?;
+                        }
+                        Err(e) => {
+                            tracing::warn!("Failed to refresh OAuth token for {}: {}", provider_id, e);
+                            // Continue with old token, might fail with 401
+                        }
+                    }
+                }
+            }
+
             if let Some(key) = cred.api_key() {
                 return Ok(Some(key));
             }

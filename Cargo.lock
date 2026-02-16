@@ -54,6 +54,7 @@ dependencies = [
  "futures",
  "http",
  "http-body-util",
+ "rand",
  "ratatui",
  "serde",
  "serde_json",
