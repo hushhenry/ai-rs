@@ -219,12 +219,12 @@ async fn run_tui_loop(
                                 if !state.input.is_empty() {
                                     if state.is_oauth {
                                         let mut res = oauth_callbacks.prompt_result.lock().unwrap();
-                                        *res = Some(state.input.clone());
+                                        *res = Some(state.input.trim().to_string());
                                         state.input.clear();
                                         state.hint = "Exchanging code for token...".into();
                                     } else {
                                         let provider_id = state.provider_id.clone();
-                                        let input = state.input.clone();
+                                        let input = state.input.trim().to_string();
                                         let is_setup = state.hint.contains("setup-token");
 
                                         if is_setup {
@@ -458,7 +458,7 @@ fn draw(
         Screen::AuthInput(state) => {
             let chunks = Layout::vertical([
                 Constraint::Length(3), 
-                Constraint::Min(5), 
+                Constraint::Min(3), 
                 Constraint::Length(3),
             ]).split(area);
             
@@ -467,25 +467,21 @@ fn draw(
             let mut info_content = vec![
                 Line::from(Span::styled("Instructions: ", Style::default().fg(Color::Yellow))),
                 Line::from(state.hint.as_str()),
-                Line::from(""),
             ];
             
             if let Some(url) = &state.oauth_url {
-                info_content.push(Line::from(Span::styled("URL: ", Style::default().fg(Color::Cyan))));
+                info_content.push(Line::from(""));
+                info_content.push(Line::from(Span::styled("Clean URL (copy below):", Style::default().fg(Color::Cyan))));
                 info_content.push(Line::from(url.as_str()));
             }
             
+            // Render URL without a box/border block to allow clean copying
             let info_para = Paragraph::new(info_content)
-                .wrap(Wrap { trim: false }) // Disable trim to preserve long strings wrapping
-                .block(Block::default().borders(Borders::ALL).title(" Auth Info "));
+                .wrap(Wrap { trim: false })
+                .block(Block::default().borders(Borders::NONE).title(""));
             f.render_widget(info_para, chunks[1]);
             
-            let input_text = if state.input.is_empty() {
-                "".to_string()
-            } else {
-                state.input.clone()
-            };
-            
+            let input_text = state.input.clone();
             f.render_widget(Paragraph::new(input_text).block(Block::default().borders(Borders::ALL).title(" Input (Paste code and Enter) ")), chunks[2]);
         }
         Screen::ModelSelect(state) => {

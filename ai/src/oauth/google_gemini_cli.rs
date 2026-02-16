@@ -69,7 +69,7 @@ impl OAuthProvider for GeminiCliOAuthProvider {
 
         callbacks.on_auth(OAuthAuthInfo {
             url: auth_url,
-            instructions: Some("Authorization page opened in your browser. If not, visit the URL above. Paste the code from the success page below.".into()),
+            instructions: Some("Authorization page opened in your browser. If not, visit the URL below. Paste the code from the success page into the input box.".into()),
         });
 
         let code = callbacks
