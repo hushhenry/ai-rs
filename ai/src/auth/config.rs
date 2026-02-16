@@ -214,4 +214,29 @@ impl ConfigManager {
 
         Ok(None)
     }
+
+    /// Refresh all OAuth credentials in the config if they are near expiry.
+    pub async fn refresh_all_credentials(&self) -> anyhow::Result<()> {
+        let providers = self.list_providers_with_credentials()?;
+        for pid in providers {
+            // resolve_api_key handles the logic of checking expiry and refreshing
+            let _ = self.resolve_api_key(&pid).await?;
+        }
+        Ok(())
+    }
+
+    /// Start a background task that periodically refreshes all OAuth credentials.
+    /// Returns a JoinHandle so the caller can manage the task.
+    pub fn start_auto_refresh_service(self, interval_secs: u64) -> tokio::task::JoinHandle<()> {
+        tokio::spawn(async move {
+            let mut interval = tokio::time::interval(std::time::Duration::from_secs(interval_secs));
+            loop {
+                interval.tick().await;
+                tracing::debug!("Running auto-refresh service for OAuth credentials...");
+                if let Err(e) = self.refresh_all_credentials().await {
+                    tracing::error!("Auto-refresh service encountered an error: {}", e);
+                }
+            }
+        })
+    }
 }
