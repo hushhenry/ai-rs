@@ -104,7 +104,7 @@ struct UsageData {
 }
 
 // ---------------------------------------------------------------------------
-// Claude Code Tool Mapping (PascalCase)
+// Claude Code Tool Mapping (PascalCase for Official Tools Only)
 // ---------------------------------------------------------------------------
 
 fn get_claude_code_tools() -> Vec<&'static str> {
@@ -117,16 +117,17 @@ fn get_claude_code_tools() -> Vec<&'static str> {
 
 fn to_claude_code_name(name: &str) -> String {
     let lower = name.to_lowercase();
-    for tool in get_claude_code_tools() {
-        if tool.to_lowercase() == lower {
-            return tool.to_string();
+    for official in get_claude_code_tools() {
+        if official.to_lowercase() == lower {
+            return official.to_string();
         }
     }
-    name.to_string()
+    name.to_string() // Return original casing if not an official tool
 }
 
 fn from_claude_code_name(name: &str, requested_tools: &[ToolDef]) -> String {
     let lower = name.to_lowercase();
+    // Prioritize mapping back to the exact casing the user originally requested
     for tool in requested_tools {
         if tool.name.to_lowercase() == lower {
             return tool.name.clone();
@@ -155,7 +156,6 @@ impl Provider for AnthropicProvider {
         
         let mut system_blocks = Vec::new();
         if is_setup_token {
-            // Mimic Claude Code CLI
             headers.insert("anthropic-beta".to_string(), "claude-code-20250219,interleaved-thinking-2025-05-14".to_string());
             headers.insert("user-agent".to_string(), "claude-cli/2.1.2 (external, cli)".to_string());
             system_blocks.push(json!({"type": "text", "text": "You are Claude Code, Anthropic's official CLI for Claude."}));
@@ -165,6 +165,7 @@ impl Provider for AnthropicProvider {
         }
 
         let system = if system_blocks.is_empty() { None } else { Some(json!(system_blocks)) };
+        let requested_tools = context.tools.clone();
         
         let req_body = MessagesRequest {
             model: model.id.clone(),
@@ -186,7 +187,6 @@ impl Provider for AnthropicProvider {
         let url = format!("{}/messages", model.base_url.trim_end_matches('/'));
         let model_id = model.id.clone();
         let provider_id = model.provider.clone();
-        let requested_tools = context.tools.clone();
 
         let s = async_stream::stream! {
             let mut req = client.post(&url);
@@ -301,10 +301,6 @@ fn convert_messages(context: &ChatContext, is_setup_token: bool) -> Vec<Anthropi
 
 fn user_content_to_text(blocks: &[ContentBlock]) -> String {
     blocks.iter().filter_map(|b| if let ContentBlock::Text(t) = b { Some(t.text.as_str()) } else { None }).collect::<Vec<_>>().join("\n")
-}
-
-fn convert_tools(tools: &[ToolDef]) -> Vec<AnthropicTool> {
-    tools.iter().map(|t| AnthropicTool { name: t.name.clone(), description: t.description.clone(), parameters: t.parameters.clone() }).collect()
 }
 
 pub fn static_anthropic_models() -> Vec<ModelDef> {
