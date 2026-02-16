@@ -613,6 +613,7 @@ fn convert_anthropic_messages(
                                     if let Some(text) = block.get("thinking").and_then(|v| v.as_str()) {
                                         content.push(ContentBlock::Thinking(ThinkingContent {
                                             thinking: text.to_string(),
+                                            signature: None,
                                         }));
                                     }
                                 }

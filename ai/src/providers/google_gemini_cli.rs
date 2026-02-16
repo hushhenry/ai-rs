@@ -665,7 +665,7 @@ impl Provider for GoogleGeminiCliProvider {
 
             let mut content = Vec::new();
             if !thinking_buf.is_empty() {
-                content.push(ContentBlock::Thinking(ThinkingContent { thinking: thinking_buf }));
+                content.push(ContentBlock::Thinking(ThinkingContent { thinking: thinking_buf, signature: None }));
             }
             if !text_buf.is_empty() {
                 content.push(ContentBlock::Text(TextContent { text: text_buf }));

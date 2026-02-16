@@ -100,6 +100,8 @@ pub struct TextContent {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ThinkingContent {
     pub thinking: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub signature: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

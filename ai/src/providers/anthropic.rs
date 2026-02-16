@@ -84,6 +84,8 @@ struct DeltaData {
     #[serde(default)]
     thinking: Option<String>,
     #[serde(default)]
+    signature: Option<String>,
+    #[serde(default)]
     partial_json: Option<String>,
     #[serde(default)]
     stop_reason: Option<String>,
@@ -204,6 +206,7 @@ impl Provider for AnthropicProvider {
             
             let mut text_buf = String::new();
             let mut thinking_buf = String::new();
+            let mut signature_buf: Option<String> = None;
             let mut tool_calls: Vec<(String, String, String)> = Vec::new();
             let mut usage = Usage::default();
             let mut stop_reason = StopReason::Stop;
@@ -240,6 +243,10 @@ impl Provider for AnthropicProvider {
                             if let Some(d) = evt.delta {
                                 if let Some(t) = d.text { text_buf.push_str(&t); yield Ok(StreamEvent::TextDelta(t)); }
                                 if let Some(th) = d.thinking { thinking_buf.push_str(&th); yield Ok(StreamEvent::ThinkingDelta(th)); }
+                                if let Some(sig) = d.signature {
+                                    if signature_buf.is_none() { signature_buf = Some(String::new()); }
+                                    signature_buf.as_mut().unwrap().push_str(&sig);
+                                }
                                 if let Some(pj) = d.partial_json {
                                     if let Some(last) = tool_calls.last_mut() {
                                         last.2.push_str(&pj);
@@ -266,7 +273,7 @@ impl Provider for AnthropicProvider {
             }
             
             let mut content = Vec::new();
-            if !thinking_buf.is_empty() { content.push(ContentBlock::Thinking(ThinkingContent { thinking: thinking_buf })); }
+            if !thinking_buf.is_empty() { content.push(ContentBlock::Thinking(ThinkingContent { thinking: thinking_buf, signature: signature_buf })); }
             if !text_buf.is_empty() { content.push(ContentBlock::Text(TextContent { text: text_buf })); }
             for (id, name, args) in tool_calls { content.push(ContentBlock::ToolCall(ToolCall { id, name, arguments: serde_json::from_str(&args).unwrap_or(json!({})) })); }
             
