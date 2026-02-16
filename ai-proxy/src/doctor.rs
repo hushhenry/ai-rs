@@ -1,5 +1,5 @@
 use ai::{
-    ConfigManager, ModelMapper, StreamEvent, StreamOptions,
+    AiClient, ConfigManager, ModelMapper, StreamEvent, StreamOptions,
     types::{
         ChatContext, ContentBlock, Message, ModelDef, TextContent, ToolDef, ToolResultMessage,
         UserMessage,
@@ -12,7 +12,7 @@ use serde_json::json;
 /// Run the doctor check.
 pub async fn run_doctor(model_filter: Option<&str>) -> anyhow::Result<()> {
     let config = ConfigManager::default_path();
-    let mapper = ModelMapper::new();
+    let client = AiClient::builder().build();
     let enabled_models = config.get_enabled_models()?;
 
     if enabled_models.is_empty() {
@@ -42,7 +42,7 @@ pub async fn run_doctor(model_filter: Option<&str>) -> anyhow::Result<()> {
         // One random model per provider from the enabled list
         let mut provider_models: std::collections::HashMap<String, Vec<String>> = std::collections::HashMap::new();
         for full_id in &enabled_models {
-            if let Some((provider, _)) = ModelMapper::parse_model_id(full_id) {
+            if let Some((provider, _)) = ModelMapper::default().split_id(full_id) {
                 provider_models.entry(provider.to_string()).or_default().push(full_id.clone());
             }
         }
@@ -52,7 +52,7 @@ pub async fn run_doctor(model_filter: Option<&str>) -> anyhow::Result<()> {
 
         for (provider, models) in provider_models {
             if let Some(full_id) = models.choose(&mut rng) {
-                let (_, model_id) = ModelMapper::parse_model_id(full_id).unwrap();
+                let (_, model_id) = ModelMapper::default().split_id(full_id).unwrap();
                 if let Some(def) = all_static
                     .iter()
                     .find(|m| m.provider == provider && m.id == model_id)
@@ -82,7 +82,7 @@ pub async fn run_doctor(model_filter: Option<&str>) -> anyhow::Result<()> {
     };
 
     for (full_id, model_def) in &models_to_check {
-        let (provider, _) = ModelMapper::parse_model_id(full_id).unwrap();
+        let (provider, _) = ModelMapper::default().split_id(full_id).unwrap();
         let api_key = config.resolve_api_key(provider).await?;
 
         if api_key.is_none() {
@@ -94,7 +94,7 @@ pub async fn run_doctor(model_filter: Option<&str>) -> anyhow::Result<()> {
 
         // Test streaming
         let stream_result = check_model(
-            &mapper,
+            &client,
             full_id,
             model_def,
             api_key.as_deref().unwrap(),
@@ -138,7 +138,7 @@ struct CheckReport {
 }
 
 async fn check_model(
-    mapper: &ModelMapper,
+    client: &AiClient,
     full_id: &str,
     model_def: &ModelDef,
     api_key: &str,
@@ -162,7 +162,7 @@ async fn check_model(
         extra_headers: None,
     };
 
-    let mut stream = mapper.stream(full_id, model_def, &context, &options)?;
+    let mut stream = client.stream(full_id, model_def, &context, &options)?;
 
     let mut report = CheckReport {
         total_tokens: 0,
@@ -244,7 +244,7 @@ async fn check_model(
                     tools: vec![tool.clone()],
                 };
 
-                match mapper.stream(full_id, model_def, &follow_up, &options) {
+                match client.stream(full_id, model_def, &follow_up, &options) {
                     Ok(mut s2) => {
                         while let Some(event) = s2.next().await {
                             match event {

@@ -12,6 +12,12 @@ const SCOPE: &str = "openid profile email offline_access";
 
 pub struct OpenAiCodexOAuthProvider;
 
+impl OpenAiCodexOAuthProvider {
+    pub fn new() -> Self {
+        Self
+    }
+}
+
 #[async_trait]
 impl OAuthProvider for OpenAiCodexOAuthProvider {
     fn id(&self) -> &str { "openai-codex" }

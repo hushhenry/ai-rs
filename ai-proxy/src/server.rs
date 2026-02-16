@@ -1,5 +1,5 @@
 use ai::{
-    ConfigManager, ModelMapper, StreamEvent, StreamOptions,
+    AiClient, ConfigManager, ModelMapper, StreamEvent, StreamOptions,
     types::{
         AssistantMessage, ChatContext, ContentBlock, Message, ModelDef, StopReason, TextContent,
         ThinkingContent, ToolCall, ToolDef, ToolResultMessage, UserMessage,
@@ -23,7 +23,7 @@ use tokio::sync::RwLock;
 // ---------------------------------------------------------------------------
 
 pub struct AppState {
-    pub mapper: ModelMapper,
+    pub client: AiClient,
     pub config: ConfigManager,
     /// Cache of model definitions keyed by `<provider>/<model>`.
     pub models_cache: RwLock<Vec<(String, ModelDef)>>,
@@ -32,10 +32,10 @@ pub struct AppState {
 impl AppState {
     pub async fn new() -> anyhow::Result<Self> {
         let config = ConfigManager::default_path();
-        let mapper = ModelMapper::new();
+        let client = AiClient::builder().build();
 
         let state = Self {
-            mapper,
+            client,
             config,
             models_cache: RwLock::new(Vec::new()),
         };
@@ -55,7 +55,7 @@ impl AppState {
         let all_static = ai::models::static_models::all_static_models();
 
         for full_id in &enabled {
-            if let Some((provider, model_id)) = ModelMapper::parse_model_id(full_id) {
+            if let Some((provider, model_id)) = ModelMapper::default().split_id(full_id) {
                 // Look up in static models
                 if let Some(def) = all_static
                     .iter()
@@ -300,7 +300,7 @@ async fn chat_completions(
         }
     };
 
-    let (provider_name, _) = match ModelMapper::parse_model_id(&req.model) {
+    let (provider_name, _) = match ModelMapper::default().split_id(&req.model) {
         Some(p) => p,
         None => {
             return (
@@ -342,7 +342,7 @@ async fn chat_completions(
     let is_stream = req.stream.unwrap_or(false);
 
     if is_stream {
-        let event_stream = match state.mapper.stream(&req.model, &model_def, &context, &options) {
+        let event_stream = match state.client.stream(&req.model, &model_def, &context, &options) {
             Ok(s) => s,
             Err(e) => {
                 return (
@@ -455,7 +455,7 @@ async fn chat_completions(
         Sse::new(sse).into_response()
     } else {
         // Non-streaming: collect the full response
-        let event_stream = match state.mapper.stream(&req.model, &model_def, &context, &options) {
+        let event_stream = match state.client.stream(&req.model, &model_def, &context, &options) {
             Ok(s) => s,
             Err(e) => {
                 return (
@@ -661,7 +661,7 @@ async fn anthropic_messages(
         }
     };
 
-    let (provider_name, _) = match ModelMapper::parse_model_id(&req.model) {
+    let (provider_name, _) = match ModelMapper::default().split_id(&req.model) {
         Some(p) => p,
         None => {
             return (
@@ -713,7 +713,7 @@ async fn anthropic_messages(
     };
 
     // Non-streaming Anthropic response
-    let event_stream = match state.mapper.stream(&req.model, &model_def, &context, &options) {
+    let event_stream = match state.client.stream(&req.model, &model_def, &context, &options) {
         Ok(s) => s,
         Err(e) => {
             return (

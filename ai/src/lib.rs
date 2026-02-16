@@ -1,4 +1,5 @@
 pub mod auth;
+pub mod client;
 pub mod mapper;
 pub mod models;
 pub mod oauth;
@@ -10,6 +11,7 @@ pub use auth::config::ConfigManager;
 pub use auth::{
     all_provider_auth_info, provider_groups, AuthMethod, Credential, ProviderAuthInfo,
 };
+pub use client::{AiClient, AiClientBuilder};
 pub use mapper::ModelMapper;
 pub use models::static_models;
 pub use oauth::{OAuthAuthInfo, OAuthCallbacks, OAuthCredentials, OAuthPrompt, OAuthProvider};

@@ -27,3 +27,4 @@ eventsource-stream = { workspace = true }
 pin-project-lite = { workspace = true }
 async-stream = { workspace = true }
 serde_urlencoded = { workspace = true }
+genai = { workspace = true }
