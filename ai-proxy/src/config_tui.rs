@@ -30,14 +30,13 @@ use std::io::{self, stdout};
 use std::sync::{Arc, Mutex};
 
 // ---------------------------------------------------------------------------
-// Constants & Colors (Ref: Gemini CLI / Catppuccin)
+// Constants & Colors
 // ---------------------------------------------------------------------------
 
-const COLOR_GREEN: Color = Color::Rgb(166, 227, 161);  // #A6E3A1
-const COLOR_BLUE: Color = Color::Rgb(137, 180, 250);   // #89B4FA
-const COLOR_YELLOW: Color = Color::Rgb(249, 226, 175); // #F9E2AF
-const COLOR_CYAN: Color = Color::Rgb(137, 220, 235);   // #89DCEB
-const COLOR_GRAY: Color = Color::Rgb(108, 112, 134);   // #6C7086
+const COLOR_GREEN: Color = Color::Rgb(166, 227, 161);
+const COLOR_YELLOW: Color = Color::Rgb(249, 226, 175);
+const COLOR_CYAN: Color = Color::Rgb(137, 220, 235);
+const COLOR_GRAY: Color = Color::Rgb(108, 112, 134);
 
 // ---------------------------------------------------------------------------
 // TUI states
@@ -490,40 +489,44 @@ fn draw(
             f.render_stateful_widget(list, area, sub_state);
         }
         Screen::AuthInput(state) => {
-            let chunks = Layout::vertical([
-                Constraint::Length(3), 
-                Constraint::Min(3), 
-                Constraint::Length(3),
-            ]).split(area);
+            let has_info = !state.hint.is_empty() || state.oauth_url.is_some();
+            let mut constraints = vec![
+                Constraint::Length(3), // Label
+                Constraint::Length(3), // Input
+            ];
+            if has_info {
+                constraints.push(Constraint::Min(3)); // Instructions/URL
+            }
+            let chunks = Layout::vertical(constraints).split(area);
             
             f.render_widget(Paragraph::new(state.label.as_str()).block(Block::default().borders(Borders::ALL)), chunks[0]);
             
-            let mut info_content = vec![
-                Line::from(Span::styled("Instructions: ", Style::default().fg(COLOR_YELLOW))),
-                Line::from(state.hint.as_str()),
-            ];
-            
-            if let Some(url) = &state.oauth_url {
-                info_content.push(Line::from(""));
-                info_content.push(Line::from(Span::styled("Clean URL (copy below):", Style::default().fg(COLOR_CYAN))));
-                info_content.push(Line::from(url.as_str()));
-            }
-            
-            let info_para = Paragraph::new(info_content)
-                .wrap(Wrap { trim: false })
-                .block(Block::default().borders(Borders::NONE).title(""));
-            f.render_widget(info_para, chunks[1]);
-            
-            let title = Line::from(vec![
+            let input_title = Line::from(vec![
                 Span::raw(" Input ("),
                 Span::styled("Enter", Style::default().fg(COLOR_YELLOW)),
                 Span::raw(" confirm, "),
                 Span::styled("Esc", Style::default().fg(COLOR_YELLOW)),
                 Span::raw(" cancel) "),
             ]);
-            
-            let input_text = state.input.clone();
-            f.render_widget(Paragraph::new(input_text).block(Block::default().borders(Borders::ALL).title(title)), chunks[2]);
+            f.render_widget(Paragraph::new(state.input.clone()).block(Block::default().borders(Borders::ALL).title(input_title)), chunks[1]);
+
+            if has_info {
+                let mut info_content = vec![
+                    Line::from(Span::styled("Instructions: ", Style::default().fg(COLOR_YELLOW))),
+                    Line::from(state.hint.as_str()),
+                ];
+                
+                if let Some(url) = &state.oauth_url {
+                    info_content.push(Line::from(""));
+                    info_content.push(Line::from(Span::styled("URL (copy below):", Style::default().fg(COLOR_CYAN))));
+                    info_content.push(Line::from(url.as_str()));
+                }
+                
+                let info_para = Paragraph::new(info_content)
+                    .wrap(Wrap { trim: false })
+                    .block(Block::default().borders(Borders::NONE).title(""));
+                f.render_widget(info_para, chunks[2]);
+            }
         }
         Screen::ModelSelect(state) => {
             let items: Vec<ListItem> = state.models.iter().map(|(id, selected)| {
