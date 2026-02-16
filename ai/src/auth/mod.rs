@@ -95,21 +95,23 @@ pub struct ProviderAuthInfo {
 
 pub fn all_provider_auth_info() -> Vec<ProviderAuthInfo> {
     vec![
+        // OpenAI Group
         ProviderAuthInfo {
             provider_id: "openai".into(),
-            label: "OpenAI API Key".into(),
+            label: "OpenAI API key".into(),
             group: "OpenAI".into(),
-            hint: "GPT-4o, o1, o3".into(),
+            hint: "Codex OAuth + API key".into(),
             auth_methods: vec![AuthMethod::ApiKey {
                 env_var: Some("OPENAI_API_KEY".into()),
                 hint: None,
             }],
         },
+        // Anthropic Group
         ProviderAuthInfo {
             provider_id: "anthropic".into(),
-            label: "Anthropic API Key".into(),
+            label: "Anthropic API key".into(),
             group: "Anthropic".into(),
-            hint: "Standard API key".into(),
+            hint: "setup-token + API key".into(),
             auth_methods: vec![AuthMethod::ApiKey {
                 env_var: Some("ANTHROPIC_API_KEY".into()),
                 hint: None,
@@ -117,219 +119,204 @@ pub fn all_provider_auth_info() -> Vec<ProviderAuthInfo> {
         },
         ProviderAuthInfo {
             provider_id: "anthropic".into(),
-            label: "Anthropic Setup Token".into(),
+            label: "Anthropic token (paste setup-token)".into(),
             group: "Anthropic".into(),
-            hint: "via claude setup-token".into(),
+            hint: "setup-token + API key".into(),
             auth_methods: vec![AuthMethod::SetupToken {
-                hint: Some("Paste token from `claude setup-token`".into()),
+                hint: Some("run `claude setup-token` elsewhere, then paste the token here".into()),
             }],
         },
+        // vLLM Group
+        ProviderAuthInfo {
+            provider_id: "vllm".into(),
+            label: "vLLM (custom URL + model)".into(),
+            group: "vLLM".into(),
+            hint: "Local/self-hosted OpenAI-compatible".into(),
+            auth_methods: vec![AuthMethod::ApiKey {
+                env_var: Some("VLLM_API_KEY".into()),
+                hint: None,
+            }],
+        },
+        // MiniMax Group
+        ProviderAuthInfo {
+            provider_id: "minimax".into(),
+            label: "MiniMax M2.5".into(),
+            group: "MiniMax".into(),
+            hint: "M2.5 (recommended)".into(),
+            auth_methods: vec![AuthMethod::ApiKey {
+                env_var: Some("MINIMAX_API_KEY".into()),
+                hint: None,
+            }],
+        },
+        // Moonshot Group
+        ProviderAuthInfo {
+            provider_id: "moonshot".into(),
+            label: "Kimi API key (.ai)".into(),
+            group: "Moonshot AI (Kimi K2.5)".into(),
+            hint: "Kimi K2.5 + Kimi Coding".into(),
+            auth_methods: vec![AuthMethod::ApiKey {
+                env_var: Some("MOONSHOT_API_KEY".into()),
+                hint: None,
+            }],
+        },
+        // Google Group
         ProviderAuthInfo {
             provider_id: "google".into(),
-            label: "Gemini API Key".into(),
+            label: "Google Gemini API key".into(),
             group: "Google".into(),
-            hint: "AI Studio API key".into(),
+            hint: "Gemini API key + OAuth".into(),
             auth_methods: vec![AuthMethod::ApiKey {
                 env_var: Some("GEMINI_API_KEY".into()),
                 hint: None,
             }],
         },
         ProviderAuthInfo {
-            provider_id: "gemini-cli".into(),
-            label: "Gemini CLI OAuth".into(),
-            group: "Google".into(),
-            hint: "Cloud Code Assist (OOB)".into(),
-            auth_methods: vec![AuthMethod::OAuth {
-                hint: Some("Google OAuth for Cloud Code Assist".into()),
-            }],
-        },
-        ProviderAuthInfo {
             provider_id: "antigravity".into(),
-            label: "Antigravity OAuth".into(),
+            label: "Google Antigravity OAuth".into(),
             group: "Google".into(),
-            hint: "Internal Google Assistant".into(),
+            hint: "Gemini API key + OAuth".into(),
             auth_methods: vec![AuthMethod::OAuth {
-                hint: Some("Google OAuth for Antigravity".into()),
+                hint: Some("Uses the bundled Antigravity auth plugin".into()),
             }],
         },
         ProviderAuthInfo {
-            provider_id: "deepseek".into(),
-            label: "DeepSeek API Key".into(),
-            group: "DeepSeek".into(),
-            hint: "DeepSeek V3, R1".into(),
-            auth_methods: vec![AuthMethod::ApiKey {
-                env_var: Some("DEEPSEEK_API_KEY".into()),
-                hint: None,
+            provider_id: "gemini-cli".into(),
+            label: "Google Gemini CLI OAuth".into(),
+            group: "Google".into(),
+            hint: "Gemini API key + OAuth".into(),
+            auth_methods: vec![AuthMethod::OAuth {
+                hint: Some("Uses the bundled Gemini CLI auth plugin".into()),
             }],
         },
+        // xAI Group
         ProviderAuthInfo {
             provider_id: "xai".into(),
-            label: "xAI (Grok) API Key".into(),
-            group: "xAI".into(),
-            hint: "Grok 3, Grok 3 Mini".into(),
+            label: "xAI (Grok) API key".into(),
+            group: "xAI (Grok)".into(),
+            hint: "API key".into(),
             auth_methods: vec![AuthMethod::ApiKey {
                 env_var: Some("XAI_API_KEY".into()),
                 hint: None,
             }],
         },
-        ProviderAuthInfo {
-            provider_id: "groq".into(),
-            label: "Groq API Key".into(),
-            group: "Groq".into(),
-            hint: "Llama, Mixtral, Gemma".into(),
-            auth_methods: vec![AuthMethod::ApiKey {
-                env_var: Some("GROQ_API_KEY".into()),
-                hint: None,
-            }],
-        },
-        ProviderAuthInfo {
-            provider_id: "together".into(),
-            label: "Together AI API Key".into(),
-            group: "Together".into(),
-            hint: "Open models gateway".into(),
-            auth_methods: vec![AuthMethod::ApiKey {
-                env_var: Some("TOGETHER_API_KEY".into()),
-                hint: None,
-            }],
-        },
-        ProviderAuthInfo {
-            provider_id: "siliconflow".into(),
-            label: "SiliconFlow API Key".into(),
-            group: "SiliconFlow".into(),
-            hint: "DeepSeek, Qwen (CN)".into(),
-            auth_methods: vec![AuthMethod::ApiKey {
-                env_var: Some("SILICONFLOW_API_KEY".into()),
-                hint: None,
-            }],
-        },
-        ProviderAuthInfo {
-            provider_id: "zhipuai".into(),
-            label: "ZhipuAI API Key".into(),
-            group: "ZhipuAI".into(),
-            hint: "GLM-4 models".into(),
-            auth_methods: vec![AuthMethod::ApiKey {
-                env_var: Some("ZHIPUAI_API_KEY".into()),
-                hint: None,
-            }],
-        },
-        ProviderAuthInfo {
-            provider_id: "fireworks".into(),
-            label: "Fireworks API Key".into(),
-            group: "Fireworks".into(),
-            hint: "Open models gateway".into(),
-            auth_methods: vec![AuthMethod::ApiKey {
-                env_var: Some("FIREWORKS_API_KEY".into()),
-                hint: None,
-            }],
-        },
-        ProviderAuthInfo {
-            provider_id: "nebius".into(),
-            label: "Nebius API Key".into(),
-            group: "Nebius".into(),
-            hint: "Open models gateway".into(),
-            auth_methods: vec![AuthMethod::ApiKey {
-                env_var: Some("NEBIUS_API_KEY".into()),
-                hint: None,
-            }],
-        },
+        // OpenRouter Group
         ProviderAuthInfo {
             provider_id: "openrouter".into(),
-            label: "OpenRouter API Key".into(),
+            label: "OpenRouter API key".into(),
             group: "OpenRouter".into(),
-            hint: "Unified LLM API".into(),
+            hint: "API key".into(),
             auth_methods: vec![AuthMethod::ApiKey {
                 env_var: Some("OPENROUTER_API_KEY".into()),
                 hint: None,
             }],
         },
+        // Qwen Group
         ProviderAuthInfo {
-            provider_id: "minimax".into(),
-            label: "MiniMax API Key".into(),
-            group: "MiniMax".into(),
-            hint: "MiniMax M2.1, M2.5".into(),
-            auth_methods: vec![AuthMethod::ApiKey {
-                env_var: Some("MINIMAX_API_KEY".into()),
+            provider_id: "qwen".into(),
+            label: "Qwen OAuth".into(),
+            group: "Qwen".into(),
+            hint: "OAuth".into(),
+            auth_methods: vec![AuthMethod::OAuth {
                 hint: None,
             }],
         },
-        ProviderAuthInfo {
-            provider_id: "xiaomi".into(),
-            label: "Xiaomi MiMo API Key".into(),
-            group: "Xiaomi".into(),
-            hint: "MiMo V2 Flash".into(),
-            auth_methods: vec![AuthMethod::ApiKey {
-                env_var: Some("XIAOMI_API_KEY".into()),
-                hint: None,
-            }],
-        },
-        ProviderAuthInfo {
-            provider_id: "moonshot".into(),
-            label: "Moonshot API Key".into(),
-            group: "Moonshot".into(),
-            hint: "Kimi K2.5".into(),
-            auth_methods: vec![AuthMethod::ApiKey {
-                env_var: Some("MOONSHOT_API_KEY".into()),
-                hint: None,
-            }],
-        },
+        // Qianfan Group
         ProviderAuthInfo {
             provider_id: "qianfan".into(),
-            label: "Baidu Qianfan API Key".into(),
-            group: "Baidu".into(),
-            hint: "DeepSeek, ERNIE".into(),
+            label: "Qianfan API key".into(),
+            group: "Qianfan".into(),
+            hint: "API key".into(),
             auth_methods: vec![AuthMethod::ApiKey {
                 env_var: Some("QIANFAN_API_KEY".into()),
                 hint: None,
             }],
         },
-        ProviderAuthInfo {
-            provider_id: "ollama".into(),
-            label: "Ollama (Local)".into(),
-            group: "Local".into(),
-            hint: "Local models via Ollama".into(),
-            auth_methods: vec![AuthMethod::ApiKey {
-                env_var: Some("OLLAMA_API_KEY".into()),
-                hint: Some("Usually empty unless using proxy".into()),
-            }],
-        },
-        ProviderAuthInfo {
-            provider_id: "vllm".into(),
-            label: "vLLM (Local)".into(),
-            group: "Local".into(),
-            hint: "Local models via vLLM".into(),
-            auth_methods: vec![AuthMethod::ApiKey {
-                env_var: Some("VLLM_API_KEY".into()),
-                hint: None,
-            }],
-        },
-        ProviderAuthInfo {
-            provider_id: "huggingface".into(),
-            label: "HuggingFace API Key".into(),
-            group: "HuggingFace".into(),
-            hint: "HuggingFace Hub models".into(),
-            auth_methods: vec![AuthMethod::ApiKey {
-                env_var: Some("HUGGINGFACE_API_KEY".into()),
-                hint: None,
-            }],
-        },
+        // Copilot Group
         ProviderAuthInfo {
             provider_id: "github-copilot".into(),
-            label: "GitHub Copilot Token".into(),
-            group: "GitHub".into(),
-            hint: "Copilot Chat API".into(),
+            label: "GitHub Copilot (GitHub device login)".into(),
+            group: "Copilot".into(),
+            hint: "GitHub + local proxy".into(),
             auth_methods: vec![AuthMethod::ApiKey {
                 env_var: Some("COPILOT_GITHUB_TOKEN".into()),
-                hint: Some("Paste GH_TOKEN or COPILOT_GITHUB_TOKEN".into()),
+                hint: Some("Uses GitHub device flow".into()),
             }],
         },
+        // Xiaomi Group
         ProviderAuthInfo {
-            provider_id: "amazon-bedrock".into(),
-            label: "Amazon Bedrock (AWS)".into(),
-            group: "Amazon".into(),
-            hint: "Claude, Llama via Bedrock".into(),
+            provider_id: "xiaomi".into(),
+            label: "Xiaomi API key".into(),
+            group: "Xiaomi".into(),
+            hint: "API key".into(),
             auth_methods: vec![AuthMethod::ApiKey {
-                env_var: Some("AWS_ACCESS_KEY_ID".into()),
-                hint: Some("Paste Access Key ID (requires Secret Key in env)".into()),
+                env_var: Some("XIAOMI_API_KEY".into()),
+                hint: None,
+            }],
+        },
+        // Synthetic Group
+        ProviderAuthInfo {
+            provider_id: "synthetic".into(),
+            label: "Synthetic API key".into(),
+            group: "Synthetic".into(),
+            hint: "Anthropic-compatible (multi-model)".into(),
+            auth_methods: vec![AuthMethod::ApiKey {
+                env_var: None,
+                hint: None,
+            }],
+        },
+        // Together AI Group
+        ProviderAuthInfo {
+            provider_id: "together".into(),
+            label: "Together AI API key".into(),
+            group: "Together AI".into(),
+            hint: "API key".into(),
+            auth_methods: vec![AuthMethod::ApiKey {
+                env_var: Some("TOGETHER_API_KEY".into()),
+                hint: Some("Access to Llama, DeepSeek, Qwen, and more open models".into()),
+            }],
+        },
+        // Hugging Face Group
+        ProviderAuthInfo {
+            provider_id: "huggingface".into(),
+            label: "Hugging Face API key (HF token)".into(),
+            group: "Hugging Face".into(),
+            hint: "Inference API (HF token)".into(),
+            auth_methods: vec![AuthMethod::ApiKey {
+                env_var: Some("HUGGINGFACE_API_KEY".into()),
+                hint: Some("Inference Providers — OpenAI-compatible chat".into()),
+            }],
+        },
+        // Venice AI Group
+        ProviderAuthInfo {
+            provider_id: "venice".into(),
+            label: "Venice AI API key".into(),
+            group: "Venice AI".into(),
+            hint: "Privacy-focused (uncensored models)".into(),
+            auth_methods: vec![AuthMethod::ApiKey {
+                env_var: Some("VENICE_API_KEY".into()),
+                hint: Some("Privacy-focused inference (uncensored models)".into()),
+            }],
+        },
+        // Cloudflare Group
+        ProviderAuthInfo {
+            provider_id: "cloudflare-ai-gateway".into(),
+            label: "Cloudflare AI Gateway".into(),
+            group: "Cloudflare AI Gateway".into(),
+            hint: "Account ID + Gateway ID + API key".into(),
+            auth_methods: vec![AuthMethod::ApiKey {
+                env_var: None,
+                hint: None,
+            }],
+        },
+        // DeepSeek (Custom Addition)
+        ProviderAuthInfo {
+            provider_id: "deepseek".into(),
+            label: "DeepSeek API key".into(),
+            group: "DeepSeek".into(),
+            hint: "DeepSeek V3, R1".into(),
+            auth_methods: vec![AuthMethod::ApiKey {
+                env_var: Some("DEEPSEEK_API_KEY".into()),
+                hint: None,
             }],
         },
     ]
