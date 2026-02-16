@@ -53,7 +53,7 @@ impl OAuthProvider for AntigravityOAuthProvider {
     }
 
     async fn login(&self, callbacks: &dyn OAuthCallbacks) -> anyhow::Result<OAuthCredentials> {
-        let client_id = decode(&get_client_id());
+        let client_id = get_client_id();
         let pkce = generate_pkce();
 
         let scopes = SCOPES.join(" ");
@@ -92,7 +92,7 @@ impl OAuthProvider for AntigravityOAuthProvider {
 
         callbacks.on_progress("Exchanging authorization code for tokens...");
 
-        let client_secret = decode(&get_client_secret());
+        let client_secret = get_client_secret();
         let client = reqwest::Client::new();
         let resp = client
             .post(TOKEN_URL)
@@ -152,8 +152,8 @@ impl OAuthProvider for AntigravityOAuthProvider {
             .ok_or_else(|| anyhow::anyhow!("Missing projectId in credentials"))?
             .to_string();
 
-        let client_id = decode(&get_client_id());
-        let client_secret = decode(&get_client_secret());
+        let client_id = get_client_id();
+        let client_secret = get_client_secret();
         let client = reqwest::Client::new();
 
         let resp = client

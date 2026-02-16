@@ -116,7 +116,7 @@ pub fn all_provider_auth_info() -> Vec<ProviderAuthInfo> {
             }],
         },
         ProviderAuthInfo {
-            provider_id: "anthropic".into(), // Same ID, ModelMapper will handle
+            provider_id: "anthropic".into(),
             label: "Anthropic Setup Token".into(),
             group: "Anthropic".into(),
             hint: "From claude setup-token".into(),
@@ -159,6 +159,76 @@ pub fn all_provider_auth_info() -> Vec<ProviderAuthInfo> {
             hint: "DeepSeek V3, R1".into(),
             auth_methods: vec![AuthMethod::ApiKey {
                 env_var: Some("DEEPSEEK_API_KEY".into()),
+                hint: None,
+            }],
+        },
+        ProviderAuthInfo {
+            provider_id: "xai".into(),
+            label: "xAI (Grok) API Key".into(),
+            group: "xAI".into(),
+            hint: "Grok 3, Grok 3 Mini".into(),
+            auth_methods: vec![AuthMethod::ApiKey {
+                env_var: Some("XAI_API_KEY".into()),
+                hint: None,
+            }],
+        },
+        ProviderAuthInfo {
+            provider_id: "groq".into(),
+            label: "Groq API Key".into(),
+            group: "Groq".into(),
+            hint: "Llama, Mixtral, Gemma (ultra-fast)".into(),
+            auth_methods: vec![AuthMethod::ApiKey {
+                env_var: Some("GROQ_API_KEY".into()),
+                hint: None,
+            }],
+        },
+        ProviderAuthInfo {
+            provider_id: "together".into(),
+            label: "Together AI API Key".into(),
+            group: "Together".into(),
+            hint: "Llama, DeepSeek, Qwen open models".into(),
+            auth_methods: vec![AuthMethod::ApiKey {
+                env_var: Some("TOGETHER_API_KEY".into()),
+                hint: None,
+            }],
+        },
+        ProviderAuthInfo {
+            provider_id: "siliconflow".into(),
+            label: "SiliconFlow API Key".into(),
+            group: "SiliconFlow".into(),
+            hint: "DeepSeek, Qwen models (CN)".into(),
+            auth_methods: vec![AuthMethod::ApiKey {
+                env_var: Some("SILICONFLOW_API_KEY".into()),
+                hint: None,
+            }],
+        },
+        ProviderAuthInfo {
+            provider_id: "zhipuai".into(),
+            label: "ZhipuAI API Key".into(),
+            group: "ZhipuAI".into(),
+            hint: "GLM-4 models".into(),
+            auth_methods: vec![AuthMethod::ApiKey {
+                env_var: Some("ZHIPUAI_API_KEY".into()),
+                hint: None,
+            }],
+        },
+        ProviderAuthInfo {
+            provider_id: "fireworks".into(),
+            label: "Fireworks API Key".into(),
+            group: "Fireworks".into(),
+            hint: "Llama, DeepSeek, Qwen".into(),
+            auth_methods: vec![AuthMethod::ApiKey {
+                env_var: Some("FIREWORKS_API_KEY".into()),
+                hint: None,
+            }],
+        },
+        ProviderAuthInfo {
+            provider_id: "nebius".into(),
+            label: "Nebius API Key".into(),
+            group: "Nebius".into(),
+            hint: "Llama, DeepSeek, Qwen".into(),
+            auth_methods: vec![AuthMethod::ApiKey {
+                env_var: Some("NEBIUS_API_KEY".into()),
                 hint: None,
             }],
         },
