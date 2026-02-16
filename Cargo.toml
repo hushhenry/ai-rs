@@ -1,12 +1,27 @@
+[workspace]
+members = [".", "zeroai-proxy"]
+
+[workspace.dependencies]
+serde = { version = "1", features = ["derive", "rc"] }
+serde_json = "1"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "io-std", "test-util", "io-util"] }
+anyhow = "1"
+tracing = { version = "0.1", features = ["default"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+futures = "0.3"
+uuid = { version = "1.21.0", features = ["v4"] }
+chrono = { version = "0.4", features = ["serde"] }
+rand = "0.9"
+
 [package]
-name = "genai"
-version = "0.6.0-beta.2-WIP"
+name = "zeroai"
+version = "0.1.0"
 edition = "2024"
 license = "MIT OR Apache-2.0"
-description = "Multi-AI Providers Library for Rust. (OpenAI, Gemini, Anthropic, xAI, Ollama, Groq, DeepSeek, Grok)"
+description = "Multi-AI Providers Library for Rust."
 keywords = ["generative-ai","openai","chatgpt","gemini","ollama"]
-homepage = "https://github.com/jeremychone/rust-genai"
-repository = "https://github.com/jeremychone/rust-genai"
+homepage = "https://github.com/hushhenry/zeroai"
+repository = "https://github.com/hushhenry/zeroai"
 
 [lints.rust]
 unsafe_code = "forbid"
@@ -25,7 +40,7 @@ serde = { version = "1", features = ["derive", "rc"] } # Opted to rc for Arc<T> 
 serde_json = "1"
 serde_with = "3"
 # -- Web
-reqwest = {version = "0.13",  features = ["json", "stream"]}
+reqwest = {version = "0.13",  features = ["json", "stream", "form"]}
 eventsource-stream = "0.2"
 bytes = "1.6"
 # -- File
@@ -36,6 +51,16 @@ derive_more = { version = "2", features = ["from", "display"] }
 value-ext = "0.1.3"
 strum = { version = "0.27.2", features = ["derive"] }
 uuid = { version = "1.21.0", features = ["v4"] }
+# -- Auth / OAuth
+chrono = { version = "0.4", features = ["serde"] }
+dirs = "6"
+anyhow = "1"
+async-trait = "0.1"
+sha2 = "0.10"
+rand = "0.9"
+url = "2"
+serde_urlencoded = "0.7"
+open = "5"
 
 [dev-dependencies]
 simple-fs = "0.10"

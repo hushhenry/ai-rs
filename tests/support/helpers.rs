@@ -1,6 +1,6 @@
 use super::TestResult;
 use bitflags::parser::to_writer;
-use genai::chat::{ChatStream, ChatStreamEvent, StreamEnd};
+use zeroai::chat::{ChatStream, ChatStreamEvent, StreamEnd};
 use tokio_stream::StreamExt;
 
 /// A macro to retrieve the value of an `Option` field from a struct, returning an error if the field is `None`.

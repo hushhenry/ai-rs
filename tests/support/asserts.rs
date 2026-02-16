@@ -1,7 +1,7 @@
 //! Some assert convenient functions
 
 use crate::support::TestResult;
-use genai::chat::{ChatResponse, Usage};
+use zeroai::chat::{ChatResponse, Usage};
 use std::convert::Into;
 use std::fmt::Formatter;
 

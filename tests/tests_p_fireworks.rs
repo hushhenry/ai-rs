@@ -1,7 +1,7 @@
 mod support;
 
 use crate::support::{Check, TestResult, common_tests};
-use genai::{adapter::AdapterKind, resolver::AuthData};
+use zeroai::{adapter::AdapterKind, AuthData};
 
 // const MODEL: &str = "fireworks::qwen3-coder-480b-a35b-instruct";
 // const MODEL: &str = "fireworks::gpt-oss-120b";

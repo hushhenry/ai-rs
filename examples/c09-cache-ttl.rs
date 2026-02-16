@@ -10,8 +10,8 @@
 //!
 //! Run with: `cargo run --example c18-cache-ttl`
 
-use genai::Client;
-use genai::chat::{CacheControl, ChatMessage, ChatRequest};
+use zeroai::Client;
+use zeroai::chat::{CacheControl, ChatMessage, ChatRequest};
 
 const MODEL: &str = "claude-haiku-4-5-20251001";
 

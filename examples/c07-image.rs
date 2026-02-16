@@ -1,7 +1,7 @@
 //! This example demonstrates how to properly attach image to the conversations
 
-use genai::Client;
-use genai::chat::{ChatMessage, ChatRequest, ContentPart};
+use zeroai::Client;
+use zeroai::chat::{ChatMessage, ChatRequest, ContentPart};
 use tracing_subscriber::EnvFilter;
 
 const MODEL: &str = "gpt-5.1";
@@ -15,7 +15,7 @@ const IMAGE_OTHER_ONE_PATH: &str = "tests/data/other-one.png";
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	tracing_subscriber::fmt()
-		.with_env_filter(EnvFilter::new("genai=debug"))
+		.with_env_filter(EnvFilter::new("zeroai=debug"))
 		// .with_max_level(tracing::Level::DEBUG) // To enable all sub-library tracing
 		.init();
 

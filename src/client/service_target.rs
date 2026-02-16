@@ -1,5 +1,5 @@
 use crate::ModelIden;
-use crate::resolver::{AuthData, Endpoint};
+use crate::client::{AuthData, Endpoint};
 
 /// Service call target.
 ///

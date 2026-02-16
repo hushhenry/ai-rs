@@ -6,7 +6,7 @@ use crate::adapter::{AdapterDispatcher, AdapterKind, ServiceType, WebRequestData
 use crate::chat::{
 	BinarySource, ChatOptionsSet, ChatRequest, ChatResponseFormat, ChatRole, ContentPart, ReasoningEffort, Usage,
 };
-use crate::resolver::{AuthData, Endpoint};
+use crate::client::{AuthData, Endpoint};
 use crate::{Error, Headers, Result};
 use crate::{ModelIden, ServiceTarget};
 use serde_json::{Value, json};
@@ -204,8 +204,8 @@ impl OpenAIAdapter {
 		usage
 	}
 
-	/// Takes the genai ChatMessages and builds the OpenAIChatRequestParts
-	/// - `genai::ChatRequest.system`, if present, is added as the first message with role 'system'.
+	/// Takes the zeroai ChatMessages and builds the OpenAIChatRequestParts
+	/// - `zeroai::ChatRequest.system`, if present, is added as the first message with role 'system'.
 	/// - All messages get added with the corresponding roles (tools are not supported for now)
 	fn into_openai_request_parts(_model_iden: &ModelIden, chat_req: ChatRequest) -> Result<OpenAIRequestParts> {
 		let mut messages: Vec<Value> = Vec::new();

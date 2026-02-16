@@ -6,7 +6,7 @@ use std::collections::HashMap;
 /// Headers can be layered; later values override earlier ones.
 ///
 /// Note: This type keeps a single value per header name, which is the most
-/// intuitive behavior for genai. It enables straightforward auth and other
+/// intuitive behavior for zeroai. It enables straightforward auth and other
 /// overrides.
 #[derive(Debug, Default, Clone, From, Serialize, Deserialize)]
 #[serde(transparent)]

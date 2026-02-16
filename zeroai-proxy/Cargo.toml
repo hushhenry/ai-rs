@@ -1,0 +1,32 @@
+[package]
+name = "zeroai-proxy"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+zeroai = { path = ".." }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true }
+anyhow = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+futures = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+rand = { workspace = true }
+
+# HTTP server
+axum = { version = "0.8", features = ["json"] }
+tower = "0.5"
+tower-http = { version = "0.6", features = ["cors"] }
+http = "1"
+
+# CLI
+clap = { version = "4", features = ["derive"] }
+
+# TUI
+crossterm = "0.29"
+ratatui = "0.29"
+async-trait = "0.1"
+tokio-stream = "0.1"

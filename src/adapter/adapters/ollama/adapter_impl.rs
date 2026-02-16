@@ -8,7 +8,7 @@ use crate::chat::{
 	MessageContent, Tool, ToolCall, ToolName, Usage,
 };
 use crate::embed::{EmbedResponse, Embedding};
-use crate::resolver::{AuthData, Endpoint};
+use crate::client::{AuthData, Endpoint};
 use crate::webc::WebResponse;
 use crate::{Error, Result};
 use crate::{ModelIden, ServiceTarget};
@@ -169,7 +169,7 @@ impl Adapter for OllamaAdapter {
 				let fn_name: String = tc_val.x_take("/function/name")?;
 				let fn_arguments: Value = tc_val.x_take("/function/arguments")?;
 
-				// Generate a call_id if missing (genai requires one)
+				// Generate a call_id if missing (zeroai requires one)
 				let call_id = tc_val
 					.x_take::<String>("/id")
 					.unwrap_or_else(|_| format!("call_{}", &uuid::Uuid::new_v4().to_string()[..8]));

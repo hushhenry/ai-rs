@@ -48,7 +48,7 @@ impl futures::Stream for AnthropicStreamer {
 		}
 
 		while let Poll::Ready(event) = Pin::new(&mut self.inner).poll_next(cx) {
-			// NOTE: At this point, we capture more events than needed for genai::StreamItem, but it serves as documentation.
+			// NOTE: At this point, we capture more events than needed for zeroai::StreamItem, but it serves as documentation.
 			match event {
 				Some(Ok(Event::Open)) => return Poll::Ready(Some(Ok(InterStreamEvent::Start))),
 				Some(Ok(Event::Message(message))) => {

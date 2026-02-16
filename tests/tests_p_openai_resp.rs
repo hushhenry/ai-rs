@@ -1,8 +1,8 @@
 mod support;
 
 use crate::support::{Check, TestResult, common_tests};
-use genai::adapter::AdapterKind;
-use genai::resolver::AuthData;
+use zeroai::adapter::AdapterKind;
+use zeroai::AuthData;
 
 // This will use the OpenAIRes adapter
 const MODEL: &str = "gpt-5-codex";

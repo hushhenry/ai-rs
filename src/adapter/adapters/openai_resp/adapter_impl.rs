@@ -7,7 +7,7 @@ use crate::chat::{
 	ChatOptionsSet, ChatRequest, ChatResponse, ChatResponseFormat, ChatRole, ChatStream, ChatStreamResponse,
 	ContentPart, MessageContent, ReasoningEffort, Tool, ToolConfig, ToolName, Usage,
 };
-use crate::resolver::{AuthData, Endpoint};
+use crate::client::{AuthData, Endpoint};
 use crate::webc::{EventSourceStream, WebResponse};
 use crate::{Error, Headers, Result};
 use crate::{ModelIden, ServiceTarget};
@@ -55,7 +55,7 @@ impl Adapter for OpenAIRespAdapter {
 	///
 	/// ## Note related to OpenAI Responses API
 	/// - `.store = false` - To maintain consistent behavior with other chat completions, store is set to false
-	/// - `.instructions` For now we do not use the top ".instructions" (genai::ChatRequest.system),
+	/// - `.instructions` For now we do not use the top ".instructions" (zeroai::ChatRequest.system),
 	///   but just add this top system as a regular system message.
 	/// - `.summary` right now, supporting "generate reasoning summary" is not supported
 	///
@@ -294,8 +294,8 @@ impl OpenAIRespAdapter {
 		Ok(full_url.to_string())
 	}
 
-	/// Takes the genai ChatMessages and builds the OpenAIChatRequestParts
-	/// - `genai::ChatRequest.system`, if present, is added as the first message with role 'system'.
+	/// Takes the zeroai ChatMessages and builds the OpenAIChatRequestParts
+	/// - `zeroai::ChatRequest.system`, if present, is added as the first message with role 'system'.
 	/// - All messages get added with the corresponding roles (tools are not supported for now)
 	///
 	fn into_openai_request_parts(_model_iden: &ModelIden, chat_req: ChatRequest) -> Result<OpenAIRespRequestParts> {

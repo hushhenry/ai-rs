@@ -1,8 +1,8 @@
 mod support;
 
 use crate::support::{TestResult, common_tests};
-use genai::adapter::AdapterKind;
-use genai::resolver::AuthData;
+use zeroai::adapter::AdapterKind;
+use zeroai::AuthData;
 
 // Note: In groq, the llama3.1 or gemma models fail to produce JSON without a proposed schema.
 //       With the "tool-use" groq version, it will work correctly.
@@ -59,7 +59,7 @@ async fn test_chat_stream_capture_content_ok() -> TestResult<()> {
 
 #[tokio::test]
 async fn test_chat_stream_capture_all_ok() -> TestResult<()> {
-	// NOTE: At this point, genai does not capture the <think> while streaming
+	// NOTE: At this point, zeroai does not capture the <think> while streaming
 	common_tests::common_test_chat_stream_capture_all_ok(MODEL, None).await
 }
 

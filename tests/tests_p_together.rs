@@ -1,7 +1,7 @@
 mod support;
 
 use crate::support::{Check, TestResult, common_tests};
-use genai::resolver::AuthData;
+use zeroai::AuthData;
 use serial_test::serial;
 
 // meta-llama/Llama-3-8b-chat-hf ($0.2) , Qwen/Qwen3-Coder-480B-A35B-Instruct-FP8 ($2)

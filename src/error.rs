@@ -1,6 +1,7 @@
 use crate::adapter::AdapterKind;
 use crate::chat::ChatRole;
-use crate::{ModelIden, resolver, webc};
+use crate::client::AuthDataError;
+use crate::{ModelIden, webc};
 use derive_more::{Display, From};
 use reqwest::StatusCode;
 use value_ext::JsonValueExtError;
@@ -8,10 +9,10 @@ use value_ext::JsonValueExtError;
 /// Type alias for boxed errors that are Send + Sync
 pub type BoxError = Box<dyn std::error::Error + Send + Sync>;
 
-/// GenAI main Result type alias (with genai::Error)
+/// ZeroAI main Result type alias (with zeroai::Error)
 pub type Result<T> = core::result::Result<T, Error>;
 
-/// Main GenAI error
+/// Main ZeroAI error
 #[derive(Debug, From, Display)]
 #[allow(missing_docs)]
 pub enum Error {
@@ -54,17 +55,13 @@ pub enum Error {
 	#[display("Model '{model_iden}' requires an API key.")]
 	RequiresApiKey { model_iden: ModelIden },
 
-	#[display("No authentication resolver found for model '{model_iden}'.")]
-	NoAuthResolver { model_iden: ModelIden },
-
 	#[display("No authentication data available for model '{model_iden}'.")]
 	NoAuthData { model_iden: ModelIden },
 
-	// -- ModelMapper
-	#[display("Model mapping failed for '{model_iden}'.\nCause: {cause}")]
-	ModelMapperFailed {
+	#[display("Auth data error for model '{model_iden}'.\nCause: {auth_error}")]
+	AuthDataError {
 		model_iden: ModelIden,
-		cause: resolver::Error,
+		auth_error: AuthDataError,
 	},
 
 	// -- Web Call error
@@ -122,13 +119,6 @@ Cause:\n{cause}
 		body: String,
 	},
 
-	// -- Modules
-	#[display("Resolver error for model '{model_iden}'.\nCause: {resolver_error}")]
-	Resolver {
-		model_iden: ModelIden,
-		resolver_error: resolver::Error,
-	},
-
 	// -- Adapter Support
 	#[display("Adapter '{adapter_kind}' does not support feature '{feature}'")]
 	AdapterNotSupported { adapter_kind: AdapterKind, feature: String },
@@ -147,13 +137,6 @@ Cause:\n{cause}
 }
 
 // region:    --- Error Boilerplate
-
-// The Display trait is now derived via derive_more::Display
-// impl core::fmt::Display for Error {
-// 	fn fmt(&self, fmt: &mut core::fmt::Formatter) -> core::result::Result<(), core::fmt::Error> {
-// 		write!(fmt, "{self:?}")
-// 	}
-// }
 
 impl std::error::Error for Error {}
 

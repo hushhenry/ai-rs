@@ -2,9 +2,9 @@
 //! mapping from a model name to an AdapterKind.
 //! This allows mapping missing models to their Adapter implementations.
 
-use genai::chat::printer::print_chat_stream;
-use genai::chat::{ChatMessage, ChatOptions, ChatRequest};
-use genai::{Client, ClientConfig};
+use zeroai::chat::printer::print_chat_stream;
+use zeroai::chat::{ChatMessage, ChatOptions, ChatRequest};
+use zeroai::{Client, ClientConfig};
 use tracing_subscriber::EnvFilter;
 
 // const MODEL: &str = "gpt-4o-mini";
@@ -17,7 +17,7 @@ const MODEL: &str = "gemma:2b";
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	tracing_subscriber::fmt()
-		.with_env_filter(EnvFilter::new("genai=debug"))
+		.with_env_filter(EnvFilter::new("zeroai=debug"))
 		// .with_max_level(tracing::Level::DEBUG) // To enable all sub-library tracing
 		.init();
 

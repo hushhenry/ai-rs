@@ -1,8 +1,8 @@
 use futures::StreamExt;
-use genai::Client;
-use genai::chat::printer::{PrintChatStreamOptions, print_chat_stream};
-use genai::chat::{ChatMessage, ChatOptions, ChatRequest, Tool, ToolResponse};
-use genai::chat::{ChatStreamEvent, ToolCall};
+use zeroai::Client;
+use zeroai::chat::printer::{PrintChatStreamOptions, print_chat_stream};
+use zeroai::chat::{ChatMessage, ChatOptions, ChatRequest, Tool, ToolResponse};
+use zeroai::chat::{ChatStreamEvent, ToolCall};
 use serde_json::json;
 use tracing_subscriber::EnvFilter;
 
@@ -13,7 +13,7 @@ const MODEL: &str = "gemini-3-pro-preview";
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	tracing_subscriber::fmt()
-		.with_env_filter(EnvFilter::new("genai=debug"))
+		.with_env_filter(EnvFilter::new("zeroai=debug"))
 		// .with_max_level(tracing::Level::DEBUG) // To enable all sub-library tracing
 		.init();
 
@@ -98,8 +98,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 					for part in parts {
 						match part {
-							genai::chat::ContentPart::ToolCall(tc) => extracted_tool_calls.push(tc),
-							genai::chat::ContentPart::ThoughtSignature(t) => extracted_thoughts.push(t),
+							zeroai::chat::ContentPart::ToolCall(tc) => extracted_tool_calls.push(tc),
+							zeroai::chat::ContentPart::ThoughtSignature(t) => extracted_thoughts.push(t),
 							_ => {}
 						}
 					}
@@ -148,9 +148,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 		// We can convert to Vec, insert, and convert back.
 		let mut parts = assistant_msg.content.into_parts();
 		for thought in thoughts.into_iter().rev() {
-			parts.insert(0, genai::chat::ContentPart::ThoughtSignature(thought));
+			parts.insert(0, zeroai::chat::ContentPart::ThoughtSignature(thought));
 		}
-		assistant_msg.content = genai::chat::MessageContent::from_parts(parts);
+		assistant_msg.content = zeroai::chat::MessageContent::from_parts(parts);
 	}
 	let chat_req = chat_req.append_message(assistant_msg).append_message(tool_response);
 

@@ -1,6 +1,6 @@
-use genai::Client;
-use genai::chat::printer::print_chat_stream;
-use genai::chat::{ChatMessage, ChatRequest, Tool, ToolResponse};
+use zeroai::Client;
+use zeroai::chat::printer::print_chat_stream;
+use zeroai::chat::{ChatMessage, ChatRequest, Tool, ToolResponse};
 use serde_json::json;
 use tracing_subscriber::EnvFilter;
 
@@ -9,7 +9,7 @@ const MODEL: &str = "gpt-4o-mini"; // or "gemini-2.0-flash" or other model suppo
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	tracing_subscriber::fmt()
-		.with_env_filter(EnvFilter::new("genai=debug"))
+		.with_env_filter(EnvFilter::new("zeroai=debug"))
 		// .with_max_level(tracing::Level::DEBUG) // To enable all sub-library tracing
 		.init();
 

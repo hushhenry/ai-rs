@@ -1,8 +1,8 @@
-//! Base examples demonstrating the core capabilities of genai
+//! Base examples demonstrating the core capabilities of zeroai
 
-use genai::Client;
-use genai::chat::printer::{PrintChatStreamOptions, print_chat_stream};
-use genai::chat::{ChatMessage, ChatRequest};
+use zeroai::Client;
+use zeroai::chat::printer::{PrintChatStreamOptions, print_chat_stream};
+use zeroai::chat::{ChatMessage, ChatRequest};
 use tracing_subscriber::EnvFilter;
 
 const MODEL_OPENAI: &str = "gpt-4o-mini"; // o1-mini, gpt-4o-mini
@@ -51,7 +51,7 @@ const MODEL_AND_KEY_ENV_NAME_LIST: &[(&str, &str)] = &[
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	tracing_subscriber::fmt()
-		.with_env_filter(EnvFilter::new("genai=debug"))
+		.with_env_filter(EnvFilter::new("zeroai=debug"))
 		// .with_max_level(tracing::Level::DEBUG) // To enable all sub-library tracing
 		.init();
 

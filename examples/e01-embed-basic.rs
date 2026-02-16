@@ -6,8 +6,8 @@
 //! - Use embedding options
 //! - Handle different providers
 
-use genai::Client;
-use genai::embed::{EmbedOptions, EmbedRequest};
+use zeroai::Client;
+use zeroai::embed::{EmbedOptions, EmbedRequest};
 use tracing_subscriber::EnvFilter;
 
 // OpenAI embedding models
@@ -20,7 +20,7 @@ const MODEL_COHERE: &str = "embed-v4.0";
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	tracing_subscriber::fmt()
-		.with_env_filter(EnvFilter::new("genai=debug"))
+		.with_env_filter(EnvFilter::new("zeroai=debug"))
 		// .with_max_level(tracing::Level::DEBUG) // To enable all sub-library tracing
 		.init();
 

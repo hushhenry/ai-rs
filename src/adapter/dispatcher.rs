@@ -17,7 +17,7 @@ use crate::adapter::xai::XaiAdapter;
 use crate::adapter::{Adapter, AdapterKind, ServiceType, WebRequestData};
 use crate::chat::{ChatOptionsSet, ChatRequest, ChatResponse, ChatStreamResponse};
 use crate::embed::{EmbedOptionsSet, EmbedRequest, EmbedResponse};
-use crate::resolver::{AuthData, Endpoint};
+use crate::client::{AuthData, Endpoint};
 use crate::webc::WebResponse;
 use crate::{Error, ModelIden};
 use crate::{Result, ServiceTarget};

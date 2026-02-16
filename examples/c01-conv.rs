@@ -1,8 +1,8 @@
 //! Example demonstrating how to create a conversation with GenAI.
 
-use genai::Client;
-use genai::chat::printer::print_chat_stream;
-use genai::chat::{ChatMessage, ChatRequest};
+use zeroai::Client;
+use zeroai::chat::printer::print_chat_stream;
+use zeroai::chat::{ChatMessage, ChatRequest};
 use tracing_subscriber::EnvFilter;
 
 const MODEL: &str = "gpt-4o-mini";
@@ -10,7 +10,7 @@ const MODEL: &str = "gpt-4o-mini";
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 	tracing_subscriber::fmt()
-		.with_env_filter(EnvFilter::new("genai=debug"))
+		.with_env_filter(EnvFilter::new("zeroai=debug"))
 		// .with_max_level(tracing::Level::DEBUG) // To enable all sub-library tracing
 		.init();
 

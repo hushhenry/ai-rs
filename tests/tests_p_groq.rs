@@ -1,8 +1,8 @@
 mod support;
 
 use crate::support::{Check, TestResult, common_tests};
-use genai::adapter::AdapterKind;
-use genai::resolver::AuthData;
+use zeroai::adapter::AdapterKind;
+use zeroai::AuthData;
 
 // Note: In groq, the llama3.1 or gemma models fail to produce JSON without a proposed schema.
 //       With the "tool-use" groq version, it will work correctly.

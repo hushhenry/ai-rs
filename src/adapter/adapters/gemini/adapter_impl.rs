@@ -6,7 +6,7 @@ use crate::chat::{
 	ChatStreamResponse, CompletionTokensDetails, ContentPart, MessageContent, PromptTokensDetails, ReasoningEffort,
 	Tool, ToolCall, ToolConfig, ToolName, Usage,
 };
-use crate::resolver::{AuthData, Endpoint};
+use crate::client::{AuthData, Endpoint};
 use crate::webc::{WebResponse, WebStream};
 use crate::{Error, Headers, ModelIden, Result, ServiceTarget};
 use reqwest::RequestBuilder;
@@ -487,7 +487,7 @@ impl GeminiAdapter {
 		}
 	}
 
-	/// Takes the genai ChatMessages and builds the System string and JSON Messages for Gemini.
+	/// Takes the zeroai ChatMessages and builds the System string and JSON Messages for Gemini.
 	/// - Role mapping `ChatRole:User -> role: "user"`, `ChatRole::Assistant -> role: "model"`
 	/// - `ChatRole::System` is concatenated (with an empty line) into a single `system` for the system instruction.
 	///   - This adapter uses version v1beta, which supports `systemInstruction`

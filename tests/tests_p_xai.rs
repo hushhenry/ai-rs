@@ -1,8 +1,8 @@
 mod support;
 
 use crate::support::{TestResult, common_tests};
-use genai::adapter::AdapterKind;
-use genai::resolver::AuthData;
+use zeroai::adapter::AdapterKind;
+use zeroai::AuthData;
 use serial_test::serial;
 
 // "grok-3-beta"

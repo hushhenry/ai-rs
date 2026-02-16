@@ -92,7 +92,7 @@ pub struct MessageOptions {
 ///
 /// Notes:
 /// - Currently used for Anthropic only.
-/// - Anthropic applies cache_control at the content-part level; genai exposes it at the
+/// - Anthropic applies cache_control at the content-part level; zeroai exposes it at the
 ///   ChatMessage level and maps it appropriately.
 /// - OpenAI ignores it; Gemini uses a separate API, so it is not supported there yet.
 ///

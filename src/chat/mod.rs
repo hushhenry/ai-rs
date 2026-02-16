@@ -1,5 +1,5 @@
 //! Chat primitives and utilities for building requests and streaming responses.
-//! Intended for use with `genai::Client`
+//! Intended for use with `zeroai::Client`
 
 // region:    --- Modules
 

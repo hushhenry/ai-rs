@@ -45,6 +45,16 @@ impl Client {
 	pub(crate) fn config(&self) -> &ClientConfig {
 		&self.inner.config
 	}
+
+	/// Returns the default endpoint URL for the given adapter.
+	pub fn default_endpoint(adapter_kind: crate::adapter::AdapterKind) -> crate::client::Endpoint {
+		crate::adapter::AdapterDispatcher::default_endpoint(adapter_kind)
+	}
+
+	/// Returns the default auth data (env-based) for the given adapter.
+	pub fn default_auth(adapter_kind: crate::adapter::AdapterKind) -> crate::client::AuthData {
+		crate::adapter::AdapterDispatcher::default_auth(adapter_kind)
+	}
 }
 
 // endregion: --- Client Getters

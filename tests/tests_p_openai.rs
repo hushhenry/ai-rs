@@ -1,9 +1,9 @@
 mod support;
 
 use crate::support::{Check, TestResult, common_tests};
-use genai::adapter::AdapterKind;
-use genai::chat::ReasoningEffort;
-use genai::resolver::AuthData;
+use zeroai::adapter::AdapterKind;
+use zeroai::chat::ReasoningEffort;
+use zeroai::AuthData;
 
 // note: "gpt-4o-mini" has issue when image & pdf
 // as for 2025-08-08 gpt-5-mini does not support temperature & stop sequence

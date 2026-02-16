@@ -3,13 +3,13 @@
 
 use crate::ModelIden;
 use crate::chat::{ChatOptionsSet, Usage};
-use crate::resolver::AuthData;
+use crate::client::AuthData;
 use crate::{Error, Result};
 
 pub fn get_api_key(auth: AuthData, model: &ModelIden) -> Result<String> {
-	auth.single_key_value().map_err(|resolver_error| Error::Resolver {
+	auth.single_key_value().map_err(|auth_error| Error::AuthDataError {
 		model_iden: model.clone(),
-		resolver_error,
+		auth_error,
 	})
 }
 

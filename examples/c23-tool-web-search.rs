@@ -1,6 +1,6 @@
 #![allow(unused)]
 
-use genai::{
+use zeroai::{
 	ClientConfig,
 	chat::{ChatRequest, Tool, ToolName, WebSearchConfig},
 };
@@ -18,8 +18,8 @@ For each new, have it in a markdown section
 3 bullet points, Use - for bullet point lines.
 and source link.";
 
-	let options = genai::chat::ChatOptions::default().with_capture_raw_body(true);
-	let client = genai::Client::builder()
+	let options = zeroai::chat::ChatOptions::default().with_capture_raw_body(true);
+	let client = zeroai::Client::builder()
 		.with_config(ClientConfig::default().with_chat_options(options))
 		.build();
 

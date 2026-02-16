@@ -1,8 +1,8 @@
 mod support;
 
 use crate::support::{TestResult, common_tests};
-use genai::Client;
-use genai::embed::{EmbedOptions, EmbedRequest};
+use zeroai::Client;
+use zeroai::embed::{EmbedOptions, EmbedRequest};
 
 const MODEL: &str = "text-embedding-3-small";
 const MODEL_LARGE: &str = "text-embedding-3-large";

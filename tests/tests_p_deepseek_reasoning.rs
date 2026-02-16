@@ -1,8 +1,8 @@
 mod support;
 
 use crate::support::{Check, TestResult, common_tests};
-use genai::adapter::AdapterKind;
-use genai::resolver::AuthData;
+use zeroai::adapter::AdapterKind;
+use zeroai::AuthData;
 
 // deepseek-reasoner (note: Does not support json output and streaming - or different streaming -)
 const MODEL: &str = "deepseek-reasoner";
@@ -43,7 +43,7 @@ async fn test_chat_reasoning_normalize_ok() -> TestResult<()> {
 
 // region:    --- Chat Stream Tests
 
-// NOTE: genai does not support deepseek-reasonner stream yet.
+// NOTE: zeroai does not support deepseek-reasonner stream yet.
 
 #[tokio::test]
 async fn test_chat_stream_simple_ok() -> TestResult<()> {

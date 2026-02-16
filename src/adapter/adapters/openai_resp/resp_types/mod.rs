@@ -5,7 +5,7 @@
 //!
 //! This is just a subset implementation of the OpenAI Responses API to match to the chat API.
 //!
-//! At some point, genai, will have a full OpenAI Responses support, and those types
+//! At some point, zeroai, will have a full OpenAI Responses support, and those types
 //! and the related parsing logic might move to the `src/resp/...` module (and we will have client.exec_responses(..))
 
 // region:    --- Modules

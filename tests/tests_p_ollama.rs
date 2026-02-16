@@ -1,8 +1,8 @@
 mod support;
 
 use crate::support::{TestResult, common_tests};
-use genai::adapter::AdapterKind;
-use genai::resolver::AuthData;
+use zeroai::adapter::AdapterKind;
+use zeroai::AuthData;
 
 // https://ollama.com/library
 // "gemma3:4b" "phi3:latest" "gpt-oss:20b"

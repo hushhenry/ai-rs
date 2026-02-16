@@ -1,5 +1,5 @@
-//! The genai embed module contains all of the constructs necessary
-//! to make embedding requests with the `genai::Client`.
+//! The zeroai embed module contains all of the constructs necessary
+//! to make embedding requests with the `zeroai::Client`.
 
 // region:    --- Modules
 

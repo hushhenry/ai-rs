@@ -10,7 +10,7 @@ use crate::error::{BoxError, Error as GenaiError};
 
 /// WebStream is a simple web stream implementation that splits the stream messages by a given delimiter.
 /// - It is intended to be a pragmatic solution for services that do not adhere to the `text/event-stream` format and content type.
-/// - For providers that support the standard `text/event-stream`, `genai` uses the `reqwest-eventsource`/`eventsource-stream` crates.
+/// - For providers that support the standard `text/event-stream`, `zeroai` uses the `reqwest-eventsource`/`eventsource-stream` crates.
 /// - This stream item is just a `String` and has different stream modes that define the message delimiter strategy (without any event typing).
 /// - Each "Event" is just string-based and has only one event type, which is a string.
 /// - It is the responsibility of the user of this stream to wrap it into a semantically correct stream of events depending on the domain.

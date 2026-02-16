@@ -1,9 +1,9 @@
 mod support;
 
 use crate::support::{Check, TestResult, common_tests};
-use genai::adapter::AdapterKind;
-use genai::chat::ReasoningEffort;
-use genai::resolver::AuthData;
+use zeroai::adapter::AdapterKind;
+use zeroai::chat::ReasoningEffort;
+use zeroai::AuthData;
 
 // "gemini-2.5-flash" "gemini-2.5-pro" "gemini-2.5-flash-lite"
 // "gemini-2.5-flash-zero"
@@ -130,10 +130,10 @@ async fn test_tool_full_flow_ok() -> TestResult<()> {
 
 #[tokio::test]
 async fn test_tool_deterministic_history_gemini_3_ok() -> TestResult<()> {
-	use genai::chat::{ChatMessage, ChatRequest, Tool, ToolCall, ToolResponse};
+	use zeroai::chat::{ChatMessage, ChatRequest, Tool, ToolCall, ToolResponse};
 	use serde_json::json;
 
-	let client = genai::Client::default();
+	let client = zeroai::Client::default();
 
 	let weather_tool = Tool::new("get_weather").with_schema(json!({
 		"type": "object",
@@ -176,11 +176,11 @@ async fn test_tool_deterministic_history_gemini_3_ok() -> TestResult<()> {
 // NOTE: Issue of this test is that it is pretty slow
 #[tokio::test]
 async fn test_tool_google_web_search_ok() -> TestResult<()> {
-	use genai::chat::{ChatRequest, Tool};
+	use zeroai::chat::{ChatRequest, Tool};
 	use serde_json::json;
 
 	// -- Fixtures & Setup
-	let client = genai::Client::default();
+	let client = zeroai::Client::default();
 	let web_search_tool = Tool::new("googleSearch").with_config(json!({}));
 	let chat_req =
 		ChatRequest::from_user("What is the latest version of Rust? (be concise)").append_tool(web_search_tool);

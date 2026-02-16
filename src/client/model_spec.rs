@@ -5,20 +5,19 @@ use crate::{ModelIden, ModelName, ServiceTarget};
 /// `ModelSpec` provides three levels of control over model resolution:
 ///
 /// - [`ModelSpec::Name`]: Just a model name string. The adapter kind is inferred
-///   from the name, and auth/endpoint are resolved via the client's configured resolvers.
+///   from the name, and auth/endpoint use the adapter's defaults.
 ///
 /// - [`ModelSpec::Iden`]: An explicit [`ModelIden`] with adapter kind specified.
 ///   Skips adapter inference but still resolves auth/endpoint via config.
 ///
 /// - [`ModelSpec::Target`]: A complete [`ServiceTarget`] with endpoint, auth, and model.
-///   Used directly, only runs the service target resolver.
+///   Used directly — bypasses all inference and default resolution.
 ///
 /// # Examples
 ///
 /// ```rust
-/// use genai::adapter::AdapterKind;
-/// use genai::resolver::{AuthData, Endpoint};
-/// use genai::{ModelIden, ModelSpec, ServiceTarget};
+/// use zeroai::adapter::AdapterKind;
+/// use zeroai::{AuthData, Endpoint, ModelIden, ModelSpec, ServiceTarget};
 ///
 /// // Using a string name (full inference)
 /// let spec: ModelSpec = "gpt-4".into();

@@ -1,9 +1,23 @@
 use crate::adapter::{AdapterDispatcher, AdapterKind, ServiceType, WebRequestData};
 use crate::chat::{ChatOptions, ChatOptionsSet, ChatRequest, ChatResponse, ChatStreamResponse};
-use crate::client::ModelSpec;
+use crate::client::{AuthData, ModelSpec};
 use crate::embed::{EmbedOptions, EmbedOptionsSet, EmbedRequest, EmbedResponse};
-use crate::resolver::AuthData;
+use crate::mapper::ModelMapper as PrefixMapper;
 use crate::{Client, Error, ModelIden, Result, ServiceTarget};
+
+/// Re-attach a provider prefix to model identifiers in a ChatResponse.
+fn backfill_prefix(res: &mut ChatResponse, prefix: &str) {
+	let mapper = PrefixMapper::new();
+	res.model_iden.model_name = mapper.join_id(prefix, &res.model_iden.model_name).into();
+	res.provider_model_iden.model_name =
+		mapper.join_id(prefix, &res.provider_model_iden.model_name).into();
+}
+
+/// Re-attach a provider prefix to the model identifier in a ChatStreamResponse.
+fn backfill_prefix_stream(res: &mut ChatStreamResponse, prefix: &str) {
+	let mapper = PrefixMapper::new();
+	res.model_iden.model_name = mapper.join_id(prefix, &res.model_iden.model_name).into();
+}
 
 /// High-level client APIs.
 impl Client {
@@ -49,7 +63,8 @@ impl Client {
 	/// - `ModelIden`: Explicit adapter, resolves auth/endpoint
 	/// - `ServiceTarget`: Uses directly, bypasses model mapping and auth resolution
 	pub async fn resolve_service_target(&self, model: impl Into<ModelSpec>) -> Result<ServiceTarget> {
-		self.config().resolve_model_spec(model.into()).await
+		let (target, _prefix) = self.config().resolve_model_spec(model.into()).await?;
+		Ok(target)
 	}
 
 	/// Sends a chat request and returns the full response.
@@ -68,7 +83,7 @@ impl Client {
 			.with_chat_options(options)
 			.with_client_options(self.config().chat_options());
 
-		let target = self.config().resolve_model_spec(model.into()).await?;
+		let (target, prefix) = self.config().resolve_model_spec(model.into()).await?;
 		let model = target.model.clone();
 		let auth_data = target.auth.clone();
 
@@ -106,6 +121,9 @@ impl Client {
 		match AdapterDispatcher::to_chat_response(model.clone(), web_res, options_set) {
 			Ok(mut chat_res) => {
 				chat_res.captured_raw_body = captured_raw_body;
+				if let Some(ref pfx) = prefix {
+					backfill_prefix(&mut chat_res, pfx);
+				}
 				Ok(chat_res)
 			}
 			Err(err) => {
@@ -139,7 +157,7 @@ impl Client {
 			.with_chat_options(options)
 			.with_client_options(self.config().chat_options());
 
-		let target = self.config().resolve_model_spec(model.into()).await?;
+		let (target, prefix) = self.config().resolve_model_spec(model.into()).await?;
 		let model = target.model.clone();
 		let auth_data = target.auth.clone();
 
@@ -173,7 +191,11 @@ impl Client {
 				webc_error,
 			})?;
 
-		let res = AdapterDispatcher::to_chat_stream(model, reqwest_builder, options_set)?;
+		let mut res = AdapterDispatcher::to_chat_stream(model, reqwest_builder, options_set)?;
+
+		if let Some(ref pfx) = prefix {
+			backfill_prefix_stream(&mut res, pfx);
+		}
 
 		Ok(res)
 	}
@@ -220,7 +242,7 @@ impl Client {
 			.with_request_options(options)
 			.with_client_options(self.config().embed_options());
 
-		let target = self.config().resolve_model_spec(model.into()).await?;
+		let (target, _prefix) = self.config().resolve_model_spec(model.into()).await?;
 		let model = target.model.clone();
 
 		let WebRequestData { headers, payload, url } =

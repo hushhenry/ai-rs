@@ -41,7 +41,7 @@ macro_rules! impl_test_error_from {
 impl_test_error_from!(
 	//
 	simple_fs::Error,
-	genai::Error,
+	zeroai::Error,
 	value_ext::JsonValueExtError,
 	std::io::Error
 );

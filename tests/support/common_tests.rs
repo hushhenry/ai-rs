@@ -8,14 +8,14 @@ use crate::support::{
 	contains_checks, extract_stream_end, get_big_content, seed_chat_req_simple, seed_chat_req_tool_simple,
 	validate_checks,
 };
-use genai::adapter::AdapterKind;
-use genai::chat::{
+use zeroai::adapter::AdapterKind;
+use zeroai::chat::{
 	BinarySource, CacheControl, ChatMessage, ChatOptions, ChatRequest, ChatResponseFormat, ContentPart, JsonSpec,
 	ReasoningEffort, Tool, ToolResponse, Verbosity,
 };
-use genai::embed::EmbedOptions;
-use genai::resolver::{AuthData, AuthResolver, AuthResolverFn, IntoAuthResolverFn};
-use genai::{Client, ClientConfig, ModelIden};
+use zeroai::embed::EmbedOptions;
+use zeroai::adapter::{AdapterDispatcher, AdapterKind};
+use zeroai::{AuthData, Client, ClientConfig, Endpoint, ModelIden, ServiceTarget};
 use serde_json::{Value, json};
 use std::sync::Arc;
 use value_ext::JsonValueExt;
@@ -993,16 +993,23 @@ pub async fn common_test_tool_full_flow_ok(model: &str) -> TestResult<()> {
 
 // endregion: --- Tools
 
-// region:    --- With Resolvers
+// region:    --- With Auth
 
 pub async fn common_test_resolver_auth_ok(model: &str, auth_data: AuthData) -> TestResult<()> {
 	// -- Setup & Fixtures
-	let auth_resolver = AuthResolver::from_resolver_fn(move |model_iden: ModelIden| Ok(Some(auth_data)));
-	let client = Client::builder().with_auth_resolver(auth_resolver).build();
+	let adapter_kind = AdapterKind::from_model(model)?;
+	let model_iden = ModelIden::new(adapter_kind, model);
+	let target = ServiceTarget {
+		endpoint: AdapterDispatcher::default_endpoint(adapter_kind),
+		auth: auth_data,
+		model: model_iden,
+	};
+
+	let client = Client::default();
 	let chat_req = seed_chat_req_simple();
 
 	// -- Exec
-	let chat_res = client.exec_chat(model, chat_req, None).await?;
+	let chat_res = client.exec_chat(target, chat_req, None).await?;
 
 	// -- Check
 	assert!(!chat_res.content.is_empty(), "Content should not be empty");
@@ -1013,7 +1020,7 @@ pub async fn common_test_resolver_auth_ok(model: &str, auth_data: AuthData) -> T
 	Ok(())
 }
 
-// endregion: --- With Resolvers
+// endregion: --- With Auth
 
 // region:    --- List
 

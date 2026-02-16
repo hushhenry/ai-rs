@@ -1,9 +1,9 @@
 mod support;
 
 use crate::support::{Check, TestResult, common_tests};
-use genai::adapter::AdapterKind;
-use genai::chat::ReasoningEffort;
-use genai::resolver::AuthData;
+use zeroai::adapter::AdapterKind;
+use zeroai::chat::ReasoningEffort;
+use zeroai::AuthData;
 use serial_test::serial;
 
 // "claude-3-haiku-20240307" cheapest

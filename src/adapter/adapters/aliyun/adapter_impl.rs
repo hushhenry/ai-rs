@@ -3,7 +3,7 @@
 use crate::adapter::openai::OpenAIAdapter;
 use crate::adapter::{Adapter, AdapterKind, ServiceType, WebRequestData};
 use crate::chat::{ChatOptionsSet, ChatRequest, ChatResponse, ChatStreamResponse};
-use crate::resolver::{AuthData, Endpoint};
+use crate::client::{AuthData, Endpoint};
 use crate::webc::WebResponse;
 use crate::{ModelIden, Result, ServiceTarget};
 use reqwest::RequestBuilder;

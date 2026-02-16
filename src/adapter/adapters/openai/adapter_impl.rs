@@ -3,7 +3,7 @@ use crate::adapter::{Adapter, AdapterKind, ServiceType, WebRequestData};
 use crate::chat::{
 	ChatOptionsSet, ChatRequest, ChatResponse, ChatStream, ChatStreamResponse, MessageContent, ToolCall,
 };
-use crate::resolver::{AuthData, Endpoint};
+use crate::client::{AuthData, Endpoint};
 use crate::webc::{EventSourceStream, WebResponse};
 use crate::{Error, Result};
 use crate::{ModelIden, ServiceTarget};

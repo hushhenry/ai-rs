@@ -2,15 +2,12 @@ use crate::adapter::{AdapterDispatcher, AdapterKind};
 use crate::chat::ChatOptions;
 use crate::client::{ModelSpec, ServiceTarget};
 use crate::embed::EmbedOptions;
-use crate::resolver::{AuthData, AuthResolver, ModelMapper, ServiceTargetResolver};
-use crate::{Error, ModelIden, Result, WebConfig};
+use crate::mapper::ModelMapper as PrefixMapper;
+use crate::{ModelIden, Result, WebConfig};
 
 /// Configuration for building and customizing a `Client`.
 #[derive(Debug, Default, Clone)]
 pub struct ClientConfig {
-	pub(super) auth_resolver: Option<AuthResolver>,
-	pub(super) service_target_resolver: Option<ServiceTargetResolver>,
-	pub(super) model_mapper: Option<ModelMapper>,
 	pub(super) web_config: Option<WebConfig>,
 	pub(super) chat_options: Option<ChatOptions>,
 	pub(super) embed_options: Option<EmbedOptions>,
@@ -18,30 +15,6 @@ pub struct ClientConfig {
 
 /// Chainable setters related to the ClientConfig.
 impl ClientConfig {
-	/// Sets the AuthResolver.
-	///
-	/// Called before `service_target_resolver`; if set, it will receive this value.
-	pub fn with_auth_resolver(mut self, auth_resolver: AuthResolver) -> Self {
-		self.auth_resolver = Some(auth_resolver);
-		self
-	}
-
-	/// Sets the ModelMapper.
-	///
-	/// Called before `service_target_resolver`; if set, it will receive this value.
-	pub fn with_model_mapper(mut self, model_mapper: ModelMapper) -> Self {
-		self.model_mapper = Some(model_mapper);
-		self
-	}
-
-	/// Sets the ServiceTargetResolver.
-	///
-	/// Final step before execution; allows full control over the resolved endpoint, auth, and model identifier.
-	pub fn with_service_target_resolver(mut self, service_target_resolver: ServiceTargetResolver) -> Self {
-		self.service_target_resolver = Some(service_target_resolver);
-		self
-	}
-
 	/// Sets default ChatOptions for chat requests.
 	pub fn with_chat_options(mut self, options: ChatOptions) -> Self {
 		self.chat_options = Some(options);
@@ -68,21 +41,6 @@ impl ClientConfig {
 
 /// Getters for the fields of ClientConfig (as references).
 impl ClientConfig {
-	/// Returns the AuthResolver, if set.
-	pub fn auth_resolver(&self) -> Option<&AuthResolver> {
-		self.auth_resolver.as_ref()
-	}
-
-	/// Returns the ServiceTargetResolver, if set.
-	pub fn service_target_resolver(&self) -> Option<&ServiceTargetResolver> {
-		self.service_target_resolver.as_ref()
-	}
-
-	/// Returns the ModelMapper, if set.
-	pub fn model_mapper(&self) -> Option<&ModelMapper> {
-		self.model_mapper.as_ref()
-	}
-
 	/// Returns the default ChatOptions, if set.
 	pub fn chat_options(&self) -> Option<&ChatOptions> {
 		self.chat_options.as_ref()
@@ -98,103 +56,49 @@ impl ClientConfig {
 impl ClientConfig {
 	/// Resolves a ServiceTarget for the given model.
 	///
-	/// Applies the ModelMapper (if any), resolves auth (via AuthResolver or adapter default),
-	/// selects the adapter's default endpoint, then applies the ServiceTargetResolver (if any).
-	///
-	/// Errors with Error::Resolver if any resolver step fails.
+	/// Gets the adapter's default auth and endpoint for the model.
 	pub async fn resolve_service_target(&self, model: ModelIden) -> Result<ServiceTarget> {
-		// -- Resolve the Model first
-		let model = self.run_model_mapper(model.clone())?;
-
-		// -- Get the auth
-		let auth = self.run_auth_resolver(model.clone()).await?;
-
-		// -- Get the default endpoint
-		// For now, just get the default endpoint; the `resolve_target` will allow overriding it.
+		let auth = AdapterDispatcher::default_auth(model.adapter_kind);
 		let endpoint = AdapterDispatcher::default_endpoint(model.adapter_kind);
 
-		// -- Create the default service target
 		let service_target = ServiceTarget {
-			model: model.clone(),
+			model,
 			auth,
 			endpoint,
 		};
 
-		// -- Resolve the service target
-		let service_target = self.run_service_target_resolver(service_target).await?;
-
 		Ok(service_target)
-	}
-
-	/// Resolves a [`ModelIden`] to a [`ModelIden`] via the [`ModelMapper`] (if any).
-	fn run_model_mapper(&self, model: ModelIden) -> Result<ModelIden> {
-		match self.model_mapper() {
-			Some(model_mapper) => model_mapper.map_model(model.clone()),
-			None => Ok(model.clone()),
-		}
-		.map_err(|resolver_error| Error::Resolver {
-			model_iden: model.clone(),
-			resolver_error,
-		})
-	}
-
-	/// Resolves a [`ModelIden`] to an [`AuthData`] via the [`AuthResolver`] (if any).
-	async fn run_auth_resolver(&self, model: ModelIden) -> Result<AuthData> {
-		match self.auth_resolver() {
-			Some(auth_resolver) => {
-				let auth_data = auth_resolver
-					.resolve(model.clone())
-					.await
-					.map_err(|err| Error::Resolver {
-						model_iden: model.clone(),
-						resolver_error: err,
-					})?
-					// default the resolver resolves to nothing
-					.unwrap_or_else(|| AdapterDispatcher::default_auth(model.adapter_kind));
-
-				Ok(auth_data)
-			}
-			None => Ok(AdapterDispatcher::default_auth(model.adapter_kind)),
-		}
-	}
-
-	/// Resolves a [`ServiceTarget`] via the [`ServiceTargetResolver`] (if any).
-	async fn run_service_target_resolver(&self, service_target: ServiceTarget) -> Result<ServiceTarget> {
-		let model = service_target.model.clone();
-
-		match self.service_target_resolver() {
-			Some(service_target_resolver) => {
-				service_target_resolver
-					.resolve(service_target)
-					.await
-					.map_err(|resolver_error| Error::Resolver {
-						model_iden: model,
-						resolver_error,
-					})
-			}
-			None => Ok(service_target),
-		}
 	}
 
 	/// Resolves a [`ModelSpec`] to a [`ServiceTarget`].
 	///
-	/// The resolution behavior depends on the variant:
+	/// If the name contains a `"provider/model"` prefix that maps to a known adapter,
+	/// routes directly to that adapter with the short model name.
+	/// Otherwise infers adapter from the name via `AdapterKind::from_model`.
 	///
-	/// - [`ModelSpec::Name`]: Infers adapter from name, then applies full resolution
-	///   (model mapper, auth resolver, service target resolver).
-	///
-	/// - [`ModelSpec::Iden`]: Skips adapter inference, applies full resolution.
-	///
-	/// - [`ModelSpec::Target`]: Returns the target directly, running only the service target resolver.
-	pub async fn resolve_model_spec(&self, spec: ModelSpec) -> Result<ServiceTarget> {
+	/// Returns `(ServiceTarget, Option<String>)` where the second element is the
+	/// provider prefix (if present) for response backfill.
+	pub async fn resolve_model_spec(&self, spec: ModelSpec) -> Result<(ServiceTarget, Option<String>)> {
 		match spec {
 			ModelSpec::Name(name) => {
+				let mapper = PrefixMapper::new();
+				if let Some((provider, short)) = mapper.split_id(&name) {
+					if let Some(adapter_kind) = AdapterKind::from_lower_str(provider) {
+						let model = ModelIden::new(adapter_kind, short);
+						let target = self.resolve_service_target(model).await?;
+						return Ok((target, Some(provider.to_string())));
+					}
+				}
 				let adapter_kind = AdapterKind::from_model(&name)?;
 				let model = ModelIden::new(adapter_kind, name);
-				self.resolve_service_target(model).await
+				let target = self.resolve_service_target(model).await?;
+				Ok((target, None))
 			}
-			ModelSpec::Iden(model) => self.resolve_service_target(model).await,
-			ModelSpec::Target(target) => self.run_service_target_resolver(target).await,
+			ModelSpec::Iden(model) => {
+				let target = self.resolve_service_target(model).await?;
+				Ok((target, None))
+			}
+			ModelSpec::Target(target) => Ok((target, None)),
 		}
 	}
 }

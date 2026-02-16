@@ -6,7 +6,7 @@ use crate::chat::{
 	ChatStream, ChatStreamResponse, ContentPart, MessageContent, PromptTokensDetails, ReasoningEffort, Tool, ToolCall,
 	ToolConfig, ToolName, Usage,
 };
-use crate::resolver::{AuthData, Endpoint};
+use crate::client::{AuthData, Endpoint};
 use crate::webc::{EventSourceStream, WebResponse};
 use crate::{Headers, ModelIden};
 use crate::{Result, ServiceTarget};
@@ -43,7 +43,7 @@ fn insert_anthropic_thinking_budget_value(payload: &mut Value, effort: &Reasonin
 }
 
 // NOTE: For Anthropic, the max_tokens must be specified.
-//       To avoid surprises, the default value for genai is the maximum for a given model.
+//       To avoid surprises, the default value for zeroai is the maximum for a given model.
 // Current logic:
 // - if model contains `3-opus` or `3-haiku` 4x max token limit,
 // - otherwise assume 8k model
@@ -268,7 +268,7 @@ impl Adapter for AnthropicAdapter {
 		let mut content: MessageContent = MessageContent::default();
 
 		// NOTE: Here we are going to concatenate all of the Anthropic text content items into one
-		//       genai MessageContent::Text. This is more in line with the OpenAI API style,
+		//       zeroai MessageContent::Text. This is more in line with the OpenAI API style,
 		//       but loses the fact that they were originally separate items.
 		let json_content_items: Vec<Value> = body.x_take("content")?;
 

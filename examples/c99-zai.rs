@@ -4,8 +4,8 @@
 //! - `glm-4.6` → Regular credit-based API
 //! - `zai::glm-4.6` → Coding subscription API (automatically routed)
 
-use genai::Client;
-use genai::chat::{ChatMessage, ChatRequest};
+use zeroai::Client;
+use zeroai::chat::{ChatMessage, ChatRequest};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

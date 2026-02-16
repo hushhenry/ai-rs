@@ -1,14 +1,14 @@
 mod support;
 
 use crate::support::{Check, TestResult, common_tests};
-use genai::adapter::AdapterKind;
-use genai::resolver::AuthData;
+use zeroai::adapter::AdapterKind;
+use zeroai::AuthData;
 
 // NOTE 2025-01-31: OpenAI reasoning models do not provide reasoning right now, so for now we disabled those test(s)
 
 // NOTE: We are still splitting out the openai_reasoning test to make sure we spot any disparity.
 
-// "o4-mini" (or genai aliases "o4-mini-low", "o4-mini-medium", "o4-mini-high")
+// "o4-mini" (or zeroai aliases "o4-mini-low", "o4-mini-medium", "o4-mini-high")
 // Note "o4-mini-low" will be interpreted with `o4-mini` with `ChatOptions::default().with_reasoning_effort(ReasoningEffort::Low)`
 const MODEL: &str = "o4-mini-low";
 
